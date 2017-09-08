@@ -23,7 +23,8 @@ module.exports = {
   build: {
     // Mount libraries on build so multiple imports don't fatten the build.
     vendor: [
-      'axios'
+      'axios',
+      'lodash'
     ],
     /*
     ** Run ESLINT on save
