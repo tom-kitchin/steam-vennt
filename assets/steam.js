@@ -2,9 +2,6 @@ import axios from 'axios'
 import Bottleneck from 'bottleneck'
 import _ from 'lodash'
 
-let baseUrl = `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}`
-axios.defaults.baseURL = baseUrl
-
 // Rate limiting tool - 1 concurrent, 500ms gap, queue length limit 20, discard oldest when going over limit, reject promises when dropped.
 let requestQueue = new Bottleneck(1, 500, 20, Bottleneck.strategy.LEAK, true)
 
