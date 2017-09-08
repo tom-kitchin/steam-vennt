@@ -9,6 +9,10 @@ function isSteamKeySet () {
   return !!process.env.STEAM_API_KEY
 }
 
+function getIconUrl (game) {
+  return `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+}
+
 function resolveVanityUrl (steamVanityId) {
   return requestQueue.schedule(axios.get, 'https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/', {
     params: { key: process.env.STEAM_API_KEY, vanityurl: steamVanityId }
@@ -55,7 +59,8 @@ let server = {
         error: 'Steam API key not set on server'
       })
     }
-  }
+  },
+  getIconUrl
 }
 
 let client = {
@@ -63,7 +68,8 @@ let client = {
     return axios.get(`/api/steam-profile/${steamId}/games`, {
       baseURL: `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}`
     })
-  }
+  },
+  getIconUrl
 }
 
 export {

@@ -10,7 +10,10 @@
     </ul>
     <h2>{{ commonGames.length || 'No' }} games in common</h2>
     <ul>
-      <li v-for="game in commonGames">{{ game.name }}</li>
+      <li v-for="game in commonGames">
+        <img :src="getIconUrl(game)" />
+        {{ game.name }}
+      </li>
     </ul>
   </section>
 </template>
@@ -56,6 +59,9 @@ export default {
   methods: {
     loadProfile (steamId) {
       return steam.getSteamOwnedGames(steamId)
+    },
+    getIconUrl (game) {
+      return steam.getIconUrl(game)
     }
   },
   created () {
