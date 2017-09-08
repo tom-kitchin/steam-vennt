@@ -36,11 +36,21 @@ export default {
   },
   computed: {
     commonGames () {
+      // Collect only the games of ready profiles.
       let gameLists = _(this.steamProfiles)
         .filter(_.matches({ status: 'ready' }))
         .map((profile) => profile.games)
         .value()
-      return _.intersectionBy(...gameLists, 'appid')
+      // Get the intersection of games on those lists.
+      gameLists = _.intersectionBy(...gameLists, 'appid')
+      // Sort the list alphabetically, ignoring 'The' prefixes.
+      return _.sortBy(gameLists, (game) => {
+        let sortName = _.lowerCase(game.name)
+        if (_.startsWith(sortName, 'the ')) {
+          sortName = sortName.slice(4)
+        }
+        return sortName
+      })
     }
   },
   methods: {
