@@ -1,5 +1,6 @@
 <template>
   <section class="container">
+    <h2>Profiles</h2>
     <ul>
       <template v-for="profile in steamProfiles">
         <li v-if="profile.status === 'ready'">{{ profile.steamId }} - {{ profile.gameCount }}</li>
@@ -7,12 +8,16 @@
         <li v-else>{{ profile.steamId }} - loading...</li>
       </template>
     </ul>
+    <h2>Games in common</h2>
+    <ul>
+      <li v-for="game in commonGames">{{ game.name }}</li>
+    </ul>
   </section>
 </template>
 
 <script>
 import _ from 'lodash'
-import steam from '~/assets/steam'
+import { client as steam } from '~/assets/steam'
 
 export default {
   validate ({ params }) {
@@ -29,9 +34,18 @@ export default {
       }).fromPairs().value()
     }
   },
+  computed: {
+    commonGames () {
+      let gameLists = _(this.steamProfiles)
+        .filter(_.matches({ status: 'ready' }))
+        .map((profile) => profile.games)
+        .value()
+      return _.intersectionBy(...gameLists, 'appid')
+    }
+  },
   methods: {
     loadProfile (steamId) {
-      return steam.client.getSteamOwnedGames(steamId)
+      return steam.getSteamOwnedGames(steamId)
     }
   },
   created () {
