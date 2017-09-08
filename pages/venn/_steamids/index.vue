@@ -8,7 +8,7 @@
         <li v-else>{{ profile.steamId }} - loading...</li>
       </template>
     </ul>
-    <h2>Games in common</h2>
+    <h2>{{ commonGames.length || 'No' }} games in common</h2>
     <ul>
       <li v-for="game in commonGames">{{ game.name }}</li>
     </ul>
@@ -50,6 +50,7 @@ export default {
   },
   created () {
     _.each(this.steamProfiles, (profile) => {
+      if (_.includes(['ready', 'error'], profile.status)) { return }
       let steamId = profile.steamId
       this.loadProfile(steamId).then(({ data }) => {
         if (data.error) {
