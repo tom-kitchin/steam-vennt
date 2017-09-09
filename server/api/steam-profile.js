@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { server as steam } from '~/assets/steam'
+import { server as steam } from '~/assets/js/steam'
 
 const router = Router()
 

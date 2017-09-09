@@ -1,26 +1,29 @@
 <template>
   <section class="container">
-    <h2>Profiles</h2>
-    <ul>
+    <h3>Profiles</h3>
+    <ul class="list-group">
       <template v-for="profile in steamProfiles">
-        <li v-if="profile.status === 'ready'">{{ profile.steamId }} - {{ profile.gameCount }}</li>
-        <li v-else-if="profile.status === 'error'">{{ profile.steamId }} - ERROR: {{ profile.error }}</li>
-        <li v-else>{{ profile.steamId }} - loading...</li>
+        <li v-if="profile.status === 'ready'" class="list-group-item list-group-item-primary">{{ profile.steamId }} - {{ profile.gameCount }} games</li>
+        <li v-else-if="profile.status === 'error'" class="list-group-item list-group-item-warning">{{ profile.steamId }} - ERROR: {{ profile.error }}</li>
+        <li v-else class="list-group-item list-group-item-secondary">{{ profile.steamId }} - loading...</li>
       </template>
     </ul>
-    <h2>{{ commonGames.length || 'No' }} games in common</h2>
-    <ul>
-      <li v-for="game in commonGames">
-        <img :src="getIconUrl(game)" />
-        {{ game.name }}
-      </li>
-    </ul>
+    <hr>
+    <div v-show="commonGames.length > 0">
+      <h2>{{ commonGames.length || 'No' }} games in common</h2>
+      <table class="table">
+        <tr v-for="game in commonGames">
+          <td><img :src="getIconUrl(game)" /></td>
+          <td>{{ game.name }}</td>
+        </tr>
+      </table>
+    </div>
   </section>
 </template>
 
 <script>
 import _ from 'lodash'
-import { client as steam } from '~/assets/steam'
+import { client as steam } from '~/assets/js/steam'
 
 export default {
   validate ({ params }) {

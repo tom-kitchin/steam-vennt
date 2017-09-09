@@ -14,6 +14,12 @@ module.exports = {
     ]
   },
   /*
+  ** Global CSS
+  */
+  css: [
+    'bootstrap/dist/css/bootstrap.min.css'
+  ],
+  /*
   ** Customize the progress-bar color
   */
   loading: { color: '#3B8070' },

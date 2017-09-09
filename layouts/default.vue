@@ -1,11 +1,26 @@
 <template>
   <div>
+    <header class="container">
+      <h1><a href="/"><img :src="require('~/assets/images/novenntwithoutsteam-small.png')" alt="Vennt logo" /></a></h1>
+    </header>
+    <hr />
     <nuxt/>
   </div>
 </template>
 
 <style>
-html {
+.container {
+  line-height: 1.5em;
+  margin-left: 1em;
+  margin-right: 1em;
+}
+
+.fa-icon {
+  width: auto;
+  height: 1em; /* or any other relative font sizes */
+}
+
+/*html {
   font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 16px;
   word-spacing: 1px;
@@ -48,5 +63,5 @@ html {
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
-}
+}*/
 </style>
