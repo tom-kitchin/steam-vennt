@@ -1,7 +1,12 @@
 <template>
   <section class="container">
     <h3>Profiles</h3>
-    <steam-profile-list v-model="steamProfiles" />
+    <steam-profile-list
+      v-model="steamProfiles"
+      :canToggle="true"
+      :profileState="displayedCollection"
+      @updateChecked="selectDisplayedCollection"
+    />
     <hr>
     <venn v-if="readyForVenn" :datum="vennDatum" @segmentSelected="selectDisplayedCollection" class="col-12" />
     <div v-if="currentGameCollection">

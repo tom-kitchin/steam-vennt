@@ -10,6 +10,16 @@
             <template v-else-if="profile.status === 'error'">{{ getProfileDisplayName(profile) }} - ERROR: {{ profile.error }}</template>
             <template v-else>{{ getProfileDisplayName(profile) }} - loading...</template>
           </span>
+          <div v-if="profile.status === 'ready' && canToggle" class="float-right">
+            <input
+              v-model="checkedProfiles"
+              type="checkbox"
+              class="tgl tgl-flat"
+              :id="`profileCheck-${profile.steamId}`"
+              :value="profile.steamId"
+            />
+            <label :for="`profileCheck-${profile.steamId}`" class="tgl-btn"></label>
+          </div>
           <a
             v-if="canRemove"
             @click.prevent="removeProfile(profileKey)"
@@ -37,11 +47,31 @@ export default {
       required: false,
       type: Boolean,
       default: false
+    },
+    canToggle: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    profileState: {
+      required: false,
+      type: Array,
+      default () { return [] }
     }
   },
   data () {
     return {
       error: null
+    }
+  },
+  computed: {
+    checkedProfiles: {
+      get () {
+        return this.profileState
+      },
+      set (value) {
+        this.$emit('updateChecked', value)
+      }
     }
   },
   methods: {
@@ -127,8 +157,80 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .profile-text {
   padding-left: 1em;
+}
+
+.tgl {
+  display: none;
+
+  // add default box-sizing for this scope
+  &,
+  &:after,
+  &:before,
+  & *,
+  & *:after,
+  & *:before,
+  & + .tgl-btn {
+    box-sizing: border-box;
+    &::selection {
+      background: none;
+    }
+  }
+
+  + .tgl-btn {
+    outline: 0;
+    display: block;
+    width: 4em;
+    height: 2em;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    &:after,
+    &:before {
+      position: relative;
+      display: block;
+      content: "";
+      width: 50%;
+      height: 100%;
+    }
+
+    &:after {
+      left: 0;
+    }
+
+    &:before {
+      display: none;
+    }
+  }
+
+  &:checked + .tgl-btn:after {
+    left: 50%;
+  }
+}
+
+.tgl-flat {
+  + .tgl-btn {
+    padding: 2px;
+    transition: all .2s ease;
+    background: #fff;
+    border: 4px solid #f2f2f2;
+    border-radius: 2em;
+    &:after {
+      transition: all .2s ease;
+      background: #f2f2f2;
+      content: "";
+      border-radius: 1em;
+    }
+  }
+
+  &:checked + .tgl-btn {
+    border: 4px solid #7FC6A6;
+    &:after {
+      left: 50%;
+      background: #7FC6A6;
+    }
+  }
 }
 </style>
