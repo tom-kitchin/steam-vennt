@@ -17,9 +17,11 @@
     "bootstrap": "4.0.0-beta",
     "bottleneck": "^1.16.0",
     "cross-env": "^5.0.5",
+    "d3": "^4.10.2",
     "express": "^4.15.4",
     "lodash": "^4.17.4",
     "nuxt": "^1.0.0-rc8",
+    "venn.js": "^0.2.15",
     "vuex": "^2.4.0"
   },
   "devDependencies": {
