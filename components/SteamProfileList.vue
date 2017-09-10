@@ -4,9 +4,12 @@
     <ul v-else class="list-group">
       <template v-for="(profile, profileKey) in value">
         <li class="list-group-item" :class="getClassForProfileStatus(profile.status)" :key="profileKey">
-          <template v-if="profile.status === 'ready'">{{ profile.name }} ({{ profile.steamId }})</template>
-          <template v-else-if="profile.status === 'error'">{{ profile.providedId }} - ERROR: {{ profile.error }}</template>
-          <template v-else>{{ profile.providedId }} - loading...</template>
+          <img v-if="profile.avatar" class="img-thumbnail" :src="profile.avatar" :alt="`Profile image for steam ID ${profile.providedId}`" />
+          <span class="profile-text">
+            <template v-if="profile.status === 'ready'">{{ getProfileDisplayName(profile) }}</template>
+            <template v-else-if="profile.status === 'error'">{{ getProfileDisplayName(profile) }} - ERROR: {{ profile.error }}</template>
+            <template v-else>{{ getProfileDisplayName(profile) }} - loading...</template>
+          </span>
           <a
             v-if="canRemove"
             @click.prevent="removeProfile(profileKey)"
@@ -50,6 +53,13 @@ export default {
           return 'list-group-item-warning'
         default:
           return 'list-group-item-secondary'
+      }
+    },
+    getProfileDisplayName (profile) {
+      if (profile.name) {
+        return `${profile.name} (${profile.providedId})`
+      } else {
+        return profile.providedId
       }
     },
     removeProfile (profileKey) {
@@ -111,3 +121,9 @@ export default {
   }
 }
 </script>
+
+<style>
+.profile-text {
+  padding-left: 1em;
+}
+</style>

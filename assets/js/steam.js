@@ -54,7 +54,8 @@ function getProfiles (profiles) {
           ...profile,
           steamId: playerData.steamid,
           visibility: (playerData.communityvisibilitystate === 3) ? 'public' : 'private',
-          name: playerData.personaname
+          name: playerData.personaname,
+          avatar: playerData.avatar
         }
       } else {
         return {
