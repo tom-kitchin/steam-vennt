@@ -120,7 +120,9 @@ export default {
     }
   },
   created () {
-    this.loadProfiles()
+    if (this.value.length > 0) {
+      this.loadProfiles()
+    }
   }
 }
 </script>
