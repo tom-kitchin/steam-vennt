@@ -2,8 +2,8 @@
   <div>
     <div v-if="error" class="alert alert-danger" role="alert">ERROR: {{ error }}</div>
     <ul v-else class="list-group">
-      <template v-for="(profile, profileKey) in value">
-        <li class="list-group-item" :class="getClassForProfileStatus(profile.status)" :key="profileKey">
+      <template v-for="profile in value">
+        <li class="list-group-item" :class="getClassForProfileStatus(profile.status)" :key="profile.providedId">
           <img v-if="profile.avatar" class="img-thumbnail" :src="profile.avatar" :alt="`Profile image for steam ID ${profile.providedId}`" />
           <span class="profile-text">
             <template v-if="profile.status === 'ready'">{{ getProfileDisplayName(profile) }}</template>
@@ -22,7 +22,7 @@
           </div>
           <a
             v-if="canRemove"
-            @click.prevent="removeProfile(profileKey)"
+            @click.prevent="removeProfile(profile.providedId)"
             class="btn btn-secondary btn-sm float-right"
             role="button"
             href="#"
@@ -92,8 +92,8 @@ export default {
         return profile.providedId
       }
     },
-    removeProfile (profileKey) {
-      this.$emit('input', _.omit(this.value, profileKey))
+    removeProfile (providedId) {
+      this.$emit('input', _.reject(this.value, _.matches({ providedId })))
     },
     loadProfiles () {
       let steamIds = _.map(this.value, (profile) => {
@@ -107,25 +107,29 @@ export default {
         } else {
           this.error = null
         }
-        let updatedProfiles = _.map(data, (profile) => {
-          let originalProfile = this.findProfileByIdInValue(profile.providedId)
-          if (profile.error) {
+        let updatedProfiles = _.map(this.value, (originalProfile) => {
+          let newProfile = this.findProfileByIdInGroup(data, originalProfile.providedId)
+          if (!newProfile) {
+            // It was probably deleted in the meantime?
+            return originalProfile
+          }
+          if (newProfile.error) {
             return {
-              ...profile,
+              ...newProfile,
               ...originalProfile,
               status: 'error'
             }
           }
-          if (profile.visibility === 'private') {
+          if (newProfile.visibility === 'private') {
             return {
-              ...profile,
+              ...newProfile,
               ...originalProfile,
               status: 'error',
               error: `Profile for Steam ID ${originalProfile.providedId} is set to private`
             }
           }
           return {
-            ...profile,
+            ...newProfile,
             ...originalProfile,
             status: 'ready'
           }
@@ -133,11 +137,11 @@ export default {
         this.$emit('input', updatedProfiles)
       })
     },
-    findProfileByIdInValue (profileId) {
+    findProfileByIdInGroup (group, profileId) {
       // ProfileID could be calculated steam ID or provided ID.
-      let profile = _.find(this.value, _.matches({ steamId: profileId }))
+      let profile = _.find(group, _.matches({ steamId: profileId }))
       if (profile) { return profile }
-      profile = _.find(this.value, _.matches({ providedId: profileId }))
+      profile = _.find(group, _.matches({ providedId: profileId }))
       return profile
     }
   },
