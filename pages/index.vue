@@ -38,7 +38,8 @@
     <div class="alert alert-secondary">
       <p>
         These IDs should be either the unique numeric ID Steam assigns to your
-        account or the custom URL you can set in your Steam profile settings.
+        account or the custom URL you can set in your Steam profile settings,
+        <em>not</em> your profile or account name.
       </p>
       <p>
         You can find it by going to your Steam profile in your browser and looking
@@ -49,7 +50,7 @@
         <figcaption class="figure-caption text-right">Here my Steam ID is 'twodaemon'</figcaption>
       </figure>
       <p>
-        Note that Vennt can't read private profiles!
+        Note that <strong>Vennt can't read private profiles!</strong>
       </p>
     </div>
   </section>
