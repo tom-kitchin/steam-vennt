@@ -1,11 +1,13 @@
 import { Router } from 'express'
+import _ from 'lodash'
 import { server as steam } from '~/assets/js/steam'
 
 const router = Router()
 
 /* GET steam profile by ID. */
-router.get('/steam-profile/:steamid', function (req, res, next) {
-  steam.getSteamProfile(req.params.steamid).then((data) => {
+router.get('/steam-profile/:steamids', function (req, res, next) {
+  let steamIds = _.split(req.params.steamids, ',')
+  steam.getSteamProfiles(steamIds).then((data) => {
     res.json(data)
   })
 })

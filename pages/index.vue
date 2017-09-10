@@ -11,16 +11,7 @@
     </div>
     <div>
       <h3>Steam IDs to Vennt</h3>
-      <ul class="list-group">
-        <template v-for="profile in steamProfiles">
-          <li class="list-group-item" :class="getClassForProfileStatus(profile.status)">
-            <template v-if="profile.status === 'ready'">{{ profile.name }} ({{ profile.steamId }})</template>
-            <template v-else-if="profile.status === 'error'">{{ profile.steamId }} - ERROR: {{ profile.error }}</template>
-            <template v-else>{{ profile.steamId }} - loading...</template>
-            <a class="btn btn-secondary btn-sm float-right" role="button" @click.prevent="removeSteamId(profile.steamId)" href="#">Remove</a>
-          </li>
-        </template>
-      </ul>
+      <steam-profile-list v-model="steamProfiles" :canRemove="true" />
       <hr>
       <div class="form-row">
         <div class="form-group col-auto">
@@ -66,14 +57,14 @@
 </template>
 
 <script>
-import { client as steam } from '~/assets/js/steam'
 import _ from 'lodash'
+import SteamProfileList from '~/components/SteamProfileList'
 
 export default {
   data () {
     return {
       newSteamId: '',
-      steamProfiles: {}
+      steamProfiles: []
     }
   },
   computed: {
@@ -102,54 +93,19 @@ export default {
   },
   methods: {
     addSteamId () {
-      let steamId = this.newSteamId
+      let providedId = this.newSteamId
       this.newSteamId = ''
-      this.steamProfiles = {
+      this.steamProfiles = [
         ...this.steamProfiles,
-        [steamId]: {
-          steamId: steamId,
+        {
+          providedId,
           status: 'loading'
         }
-      }
-      this.loadProfile(steamId)
-    },
-    removeSteamId (steamId) {
-      this.steamProfiles = _.omit(this.steamProfiles, steamId)
-    },
-    loadProfile (steamId) {
-      return steam.getSteamProfile(steamId).then(({ data }) => {
-        if (data.error) {
-          this.steamProfiles[steamId] = {
-            steamId,
-            status: 'error',
-            error: data.error
-          }
-        } else if (data.visibility === 'private') {
-          this.steamProfiles[steamId] = {
-            steamId,
-            status: 'error',
-            name: data.personaname,
-            error: `Profile for Steam ID ${steamId} is set to private`
-          }
-        } else {
-          this.steamProfiles[steamId] = {
-            steamId,
-            name: data.personaname,
-            status: 'ready'
-          }
-        }
-      })
-    },
-    getClassForProfileStatus (status) {
-      switch (status) {
-        case 'ready':
-          return 'list-group-item-primary'
-        case 'error':
-          return 'list-group-item-warning'
-        default:
-          return 'list-group-item-secondary'
-      }
+      ]
     }
+  },
+  components: {
+    SteamProfileList
   }
 }
 </script>

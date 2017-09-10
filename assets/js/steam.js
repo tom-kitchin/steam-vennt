@@ -30,24 +30,39 @@ function resolveVanityUrl (steamVanityId) {
   })
 }
 
-function getProfile (steamId) {
-  if (!isSteamIdFormat(steamId)) {
-    // If it's not all numbers, it's probably not a steam ID!
-    return Promise.reject(new Error(`${steamId} doesn't look like a valid Steam ID`))
-  }
+/**
+** Perhaps unexpectedly, this method wants an array of objects with keys
+** 'steamId' and 'providedId'. Any other keys are kept in the output.
+** We do this to hold on to what we were originally asked for through
+** multiple iterations of profile lookup.
+*/
+function getProfiles (profiles) {
+  let steamIds = _.map(profiles, (profile) => profile.steamId)
+  // First just fire off a request and see what we get.
   return requestQueue.schedule(axios.get, 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
-    params: { key: process.env.STEAM_API_KEY, steamids: steamId }
+    params: { key: process.env.STEAM_API_KEY, steamids: _.join(steamIds, ',') }
   }).then(({ data }) => {
     if (_.isEmpty(data.response)) {
       // Empty response is probably a failed lookup.
-      return Promise.reject(new Error(`Failed to load profile for Steam ID '${steamId}'`))
+      return Promise.reject(new Error(`Failed to load steam profile API`))
     }
-    let player = data.response.players[0]
-    return {
-      steamid: player.steamid,
-      visibility: (player.communityvisibilitystate === 3) ? 'public' : 'private',
-      personaname: player.personaname
-    }
+    // There's no data in the response for unmatched players, so fill in the gaps.
+    return _.map(profiles, (profile) => {
+      let playerData = _.find(data.response.players, _.matches({ steamid: profile.steamId }))
+      if (playerData) {
+        return {
+          ...profile,
+          steamId: playerData.steamid,
+          visibility: (playerData.communityvisibilitystate === 3) ? 'public' : 'private',
+          name: playerData.personaname
+        }
+      } else {
+        return {
+          ...profile,
+          error: `Failed to load steam profile for ID ${profile.providedId}`
+        }
+      }
+    })
   })
 }
 
@@ -68,18 +83,38 @@ function getOwnedGames (steamId) {
 }
 
 let server = {
-  getSteamProfile (steamId) {
+  getSteamProfiles (steamIds) {
     if (isSteamKeySet()) {
-      return getProfile(steamId).catch(() => {
-        // Maybe it's a vanity ID?
-        return resolveVanityUrl(steamId).then((response) => {
-          return getProfile(response.steamid).then((response) => {
-            return response
-          })
-        }).catch((e) => {
-          return { error: e.message }
-        })
+      let steamProfiles = _.map(steamIds, (steamId) => {
+        return { providedId: steamId, steamId: steamId }
       })
+      return getProfiles(steamProfiles).then((response) => {
+        // However, some of the failed responses might have been vanity urls.
+        return Promise.all(_.map(response, (profile) => {
+          if (profile.error) {
+            return resolveVanityUrl(profile.providedId).then((response) => {
+              return {
+                providedId: profile.providedId,
+                steamId: response.steamid,
+                providedIsVanityUrl: true
+              }
+            }).catch((e) => {
+              return {
+                providedId: profile.providedId,
+                error: e.message
+              }
+            })
+          } else {
+            return Promise.resolve(profile)
+          }
+        })).then((profiles) => {
+          if (_.some(profiles, _.matches({ providedIsVanityUrl: true }))) {
+            return getProfiles(profiles)
+          } else {
+            return profiles
+          }
+        })
+      }).catch((e) => { return { error: e.message } })
     } else {
       return Promise.resolve({
         error: 'Steam API key not set on server'
@@ -111,8 +146,9 @@ let client = {
   getSteamOwnedGames (steamId) {
     return axios.get(`/api/steam-profile/${steamId}/games`)
   },
-  getSteamProfile (steamId) {
-    return axios.get(`/api/steam-profile/${steamId}`)
+  getSteamProfiles (steamIds) {
+    let steamIdString = _.join(steamIds, ',')
+    return axios.get(`/api/steam-profile/${steamIdString}`)
   },
   getIconUrl
 }
