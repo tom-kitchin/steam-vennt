@@ -1,16 +1,10 @@
 <template>
   <section class="container">
     <h3>Profiles</h3>
-    <ul class="list-group">
-      <template v-for="profile in steamProfiles">
-        <li v-if="profile.status === 'ready'" class="list-group-item list-group-item-primary">{{ profile.steamId }} - {{ profile.gameCount }} games</li>
-        <li v-else-if="profile.status === 'error'" class="list-group-item list-group-item-warning">{{ profile.steamId }} - ERROR: {{ profile.error }}</li>
-        <li v-else class="list-group-item list-group-item-secondary">{{ profile.steamId }} - loading...</li>
-      </template>
-    </ul>
+    <steam-profile-list v-model="steamProfiles" />
     <hr>
     <div v-show="commonGames.length > 0">
-      <h2 v-if="readyProfiles.length > 1">{{ commonGames.length || 'No' }} games in common</h2>
+      <h2 v-if="readyGameCollections.length > 1">{{ commonGames.length || 'No' }} games in common</h2>
       <h2 v-else>{{ commonGames.length }} owned games</h2>
       <table class="table">
         <tr v-for="game in commonGames">
@@ -25,6 +19,7 @@
 <script>
 import _ from 'lodash'
 import { client as steam } from '~/assets/js/steam'
+import SteamProfileList from '~/components/SteamProfileList'
 
 export default {
   validate ({ params }) {
@@ -34,21 +29,22 @@ export default {
   data () {
     return {
       steamProfiles: _(this.$route.params.steamids).split('+').map(function (steamId) {
-        return [steamId, {
-          steamId,
+        return {
+          providedId: steamId,
           status: 'loading'
-        }]
-      }).fromPairs().value()
+        }
+      }).value(),
+      gameCollections: {}
     }
   },
   computed: {
-    readyProfiles () {
-      return _.filter(this.steamProfiles, _.matches({ status: 'ready' }))
+    readyGameCollections () {
+      return _.filter(this.gameCollections, _.matches({ status: 'ready' }))
     },
     commonGames () {
-      // Collect only the games of ready profiles.
-      let gameLists = _(this.readyProfiles)
-        .map((profile) => profile.games)
+      // Collect only the games of ready game collections.
+      let gameLists = _(this.readyGameCollections)
+        .map((gameCollection) => gameCollection.games)
         .value()
       // Get the intersection of games on those lists.
       gameLists = _.intersectionBy(...gameLists, 'appid')
@@ -64,19 +60,32 @@ export default {
   },
   methods: {
     loadProfileGames (steamId) {
+      this.gameCollections = {
+        ...this.gameCollections,
+        [steamId]: {
+          steamId,
+          status: 'loading'
+        }
+      }
       return steam.getSteamOwnedGames(steamId).then(({ data }) => {
         if (data.error) {
-          this.steamProfiles[steamId] = {
-            steamId,
-            status: 'error',
-            error: data.error
+          this.gameCollections = {
+            ...this.gameCollections,
+            [steamId]: {
+              steamId,
+              status: 'error',
+              error: data.error
+            }
           }
         } else {
-          this.steamProfiles[steamId] = {
-            steamId,
-            gameCount: data.game_count,
-            games: data.games,
-            status: 'ready'
+          this.gameCollections = {
+            ...this.gameCollections,
+            [steamId]: {
+              steamId,
+              gameCount: data.game_count,
+              games: data.games,
+              status: 'ready'
+            }
           }
         }
       })
@@ -85,12 +94,24 @@ export default {
       return steam.getIconUrl(game)
     }
   },
-  created () {
-    _.each(this.steamProfiles, (profile) => {
-      if (_.includes(['ready', 'error'], profile.status)) { return }
-      let steamId = profile.steamId
-      this.loadProfileGames(steamId)
-    })
+  components: {
+    SteamProfileList
+  },
+  watch: {
+    steamProfiles (newProfiles) {
+      // We're looking for when a profile has just become ready.
+      let steamIdsToLoad = _.difference(
+        _(newProfiles).filter(_.matches({ status: 'ready' })).map('steamId').value(),
+        _.keys(this.gameCollections)
+      )
+      _.each(steamIdsToLoad, (steamId) => {
+        if (this.gameCollections[steamId] && this.gameCollections[steamId].status === 'loading') {
+          // whoops, we already started loading this one.
+          return
+        }
+        this.loadProfileGames(steamId)
+      })
+    }
   }
 }
 </script>

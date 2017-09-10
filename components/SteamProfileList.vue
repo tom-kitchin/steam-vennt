@@ -118,6 +118,9 @@ export default {
         this.loadProfiles()
       }
     }
+  },
+  created () {
+    this.loadProfiles()
   }
 }
 </script>
