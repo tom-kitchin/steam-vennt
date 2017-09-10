@@ -20,6 +20,12 @@ module.exports = {
     'bootstrap/dist/css/bootstrap.min.css'
   ],
   /*
+  ** Modules
+  */
+  modules: [
+    ['@nuxtjs/google-analytics', { ua: 'UA-42470605-2' }],
+  ],
+  /*
   ** Customize the progress-bar color
   */
   loading: { color: '#3B8070' },

@@ -3,7 +3,7 @@
     <h3>Profiles</h3>
     <steam-profile-list v-model="steamProfiles" />
     <hr>
-    <venn v-if="readyForVenn" :datum="vennDatum" @segmentSelected="selectDisplayedCollection" />
+    <venn v-if="readyForVenn" :datum="vennDatum" @segmentSelected="selectDisplayedCollection" class="col-12" />
     <div v-if="currentGameCollection">
       <h4 v-if="currentGameCollection.steamIds.length > 1">{{ currentGameCollectionNameSentence }} have {{ currentGameCollection.gameCount || 'no' }} games in common</h4>
       <h4 v-else>{{ currentGameCollectionNameSentence }} owns {{ currentGameCollection.gameCount }} games</h4>
