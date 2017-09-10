@@ -9,6 +9,10 @@ function isSteamKeySet () {
   return !!process.env.STEAM_API_KEY
 }
 
+function isSteamIdFormat (steamId) {
+  return (/^\d+$/.test(steamId))
+}
+
 function getIconUrl (game) {
   if (!game.img_icon_url) { return '' }
   return `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
@@ -26,8 +30,29 @@ function resolveVanityUrl (steamVanityId) {
   })
 }
 
+function getProfile (steamId) {
+  if (!isSteamIdFormat(steamId)) {
+    // If it's not all numbers, it's probably not a steam ID!
+    return Promise.reject(new Error(`${steamId} doesn't look like a valid Steam ID`))
+  }
+  return requestQueue.schedule(axios.get, 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
+    params: { key: process.env.STEAM_API_KEY, steamids: steamId }
+  }).then(({ data }) => {
+    if (_.isEmpty(data.response)) {
+      // Empty response is probably a failed lookup.
+      return Promise.reject(new Error(`Failed to load profile for Steam ID '${steamId}'`))
+    }
+    let player = data.response.players[0]
+    return {
+      steamid: player.steamid,
+      visibility: (player.communityvisibilitystate === 3) ? 'public' : 'private',
+      personaname: player.personaname
+    }
+  })
+}
+
 function getOwnedGames (steamId) {
-  if (!/^\d+$/.test(steamId)) {
+  if (!isSteamIdFormat(steamId)) {
     // If it's not all numbers, it's probably not a steam ID!
     return Promise.reject(new Error(`${steamId} doesn't look like a valid Steam ID`))
   }
@@ -43,6 +68,24 @@ function getOwnedGames (steamId) {
 }
 
 let server = {
+  getSteamProfile (steamId) {
+    if (isSteamKeySet()) {
+      return getProfile(steamId).catch(() => {
+        // Maybe it's a vanity ID?
+        return resolveVanityUrl(steamId).then((response) => {
+          return getProfile(response.steamid).then((response) => {
+            return response
+          })
+        }).catch((e) => {
+          return { error: e.message }
+        })
+      })
+    } else {
+      return Promise.resolve({
+        error: 'Steam API key not set on server'
+      })
+    }
+  },
   getSteamOwnedGames (steamId) {
     if (isSteamKeySet()) {
       return getOwnedGames(steamId).catch(() => {
@@ -67,6 +110,9 @@ let server = {
 let client = {
   getSteamOwnedGames (steamId) {
     return axios.get(`/api/steam-profile/${steamId}/games`)
+  },
+  getSteamProfile (steamId) {
+    return axios.get(`/api/steam-profile/${steamId}`)
   },
   getIconUrl
 }

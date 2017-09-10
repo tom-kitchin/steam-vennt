@@ -11,18 +11,27 @@
     </div>
     <div>
       <h3>Steam IDs to Vennt</h3>
-      <table class="table">
-        <tbody>
-          <tr v-for="(id, index) in steamIds">
-            <td>{{ id }}</td>
-            <td><a class="btn btn-secondary btn-sm" role="button" @click.prevent="removeSteamId(index)" href="#">Remove</a></td>
-          </tr>
-          <tr class="form-inline">
-            <td><input v-model="newSteamId" @keyup.enter="addSteamId" placeholder="Add Steam ID" /></td>
-            <td><a class="btn btn-primary btn-sm" role="button" @click.prevent="addSteamId" href="#">Add</a></td>
-          </tr>
-        </tbody>
-      </table>
+      <ul class="list-group">
+        <template v-for="profile in steamProfiles">
+          <li class="list-group-item" :class="getClassForProfileStatus(profile.status)">
+            <template v-if="profile.status === 'ready'">{{ profile.name }} ({{ profile.steamId }})</template>
+            <template v-else-if="profile.status === 'error'">{{ profile.steamId }} - ERROR: {{ profile.error }}</template>
+            <template v-else>{{ profile.steamId }} - loading...</template>
+            <a class="btn btn-secondary btn-sm float-right" role="button" @click.prevent="removeSteamId(profile.steamId)" href="#">Remove</a>
+          </li>
+        </template>
+      </ul>
+      <hr>
+      <div class="form-row">
+        <div class="form-group col-auto">
+          <label for="steamId" class="sr-only">Steam ID</label>
+          <input id="steamId" v-model="newSteamId" @keyup.enter="addSteamId" placeholder="Add Steam ID" />
+        </div>
+        <div class="form-group col-auto">
+          <label for="addSteamId" class="sr-only">Add Steam ID</label>
+          <a id="addSteamId" class="btn btn-primary btn-sm" role="button" @click.prevent="addSteamId" href="#">Add</a>
+        </div>
+      </div>
     </div>
 
     <div class="mb-3">
@@ -57,22 +66,26 @@
 </template>
 
 <script>
+import { client as steam } from '~/assets/js/steam'
 import _ from 'lodash'
 
 export default {
   data () {
     return {
       newSteamId: '',
-      steamIds: []
+      steamProfiles: {}
     }
   },
   computed: {
     vennUrl () {
-      let idString = _.join(this.steamIds, '+')
+      let idString = _(this.readyProfiles).map((profile) => profile.steamId).join('+')
       return `/venn/${idString}`
     },
+    readyProfiles () {
+      return _.filter(this.steamProfiles, _.matches({ status: 'ready' }))
+    },
     allowVennt () {
-      return (this.steamIds.length > 0)
+      return (this.readyProfiles.length > 0)
     },
     venntButtonClass () {
       return {
@@ -89,18 +102,53 @@ export default {
   },
   methods: {
     addSteamId () {
-      this.steamIds = [
-        ...this.steamIds,
-        this.newSteamId
-      ]
+      let steamId = this.newSteamId
       this.newSteamId = ''
+      this.steamProfiles = {
+        ...this.steamProfiles,
+        [steamId]: {
+          steamId: steamId,
+          status: 'loading'
+        }
+      }
+      this.loadProfile(steamId)
     },
-    removeSteamId (index) {
-      console.log(index)
-      this.steamIds = [
-        ..._.slice(this.steamIds, 0, index),
-        ..._.slice(this.steamIds, index + 1)
-      ]
+    removeSteamId (steamId) {
+      this.steamProfiles = _.omit(this.steamProfiles, steamId)
+    },
+    loadProfile (steamId) {
+      return steam.getSteamProfile(steamId).then(({ data }) => {
+        if (data.error) {
+          this.steamProfiles[steamId] = {
+            steamId,
+            status: 'error',
+            error: data.error
+          }
+        } else if (data.visibility === 'private') {
+          this.steamProfiles[steamId] = {
+            steamId,
+            status: 'error',
+            name: data.personaname,
+            error: `Profile for Steam ID ${steamId} is set to private`
+          }
+        } else {
+          this.steamProfiles[steamId] = {
+            steamId,
+            name: data.personaname,
+            status: 'ready'
+          }
+        }
+      })
+    },
+    getClassForProfileStatus (status) {
+      switch (status) {
+        case 'ready':
+          return 'list-group-item-primary'
+        case 'error':
+          return 'list-group-item-warning'
+        default:
+          return 'list-group-item-secondary'
+      }
     }
   }
 }

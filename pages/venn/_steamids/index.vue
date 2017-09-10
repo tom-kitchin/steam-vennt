@@ -10,7 +10,8 @@
     </ul>
     <hr>
     <div v-show="commonGames.length > 0">
-      <h2>{{ commonGames.length || 'No' }} games in common</h2>
+      <h2 v-if="readyProfiles.length > 1">{{ commonGames.length || 'No' }} games in common</h2>
+      <h2 v-else>{{ commonGames.length }} owned games</h2>
       <table class="table">
         <tr v-for="game in commonGames">
           <td><img :src="getIconUrl(game)" /></td>
@@ -41,10 +42,12 @@ export default {
     }
   },
   computed: {
+    readyProfiles () {
+      return _.filter(this.steamProfiles, _.matches({ status: 'ready' }))
+    },
     commonGames () {
       // Collect only the games of ready profiles.
-      let gameLists = _(this.steamProfiles)
-        .filter(_.matches({ status: 'ready' }))
+      let gameLists = _(this.readyProfiles)
         .map((profile) => profile.games)
         .value()
       // Get the intersection of games on those lists.
@@ -60,18 +63,8 @@ export default {
     }
   },
   methods: {
-    loadProfile (steamId) {
-      return steam.getSteamOwnedGames(steamId)
-    },
-    getIconUrl (game) {
-      return steam.getIconUrl(game)
-    }
-  },
-  created () {
-    _.each(this.steamProfiles, (profile) => {
-      if (_.includes(['ready', 'error'], profile.status)) { return }
-      let steamId = profile.steamId
-      this.loadProfile(steamId).then(({ data }) => {
+    loadProfileGames (steamId) {
+      return steam.getSteamOwnedGames(steamId).then(({ data }) => {
         if (data.error) {
           this.steamProfiles[steamId] = {
             steamId,
@@ -87,6 +80,16 @@ export default {
           }
         }
       })
+    },
+    getIconUrl (game) {
+      return steam.getIconUrl(game)
+    }
+  },
+  created () {
+    _.each(this.steamProfiles, (profile) => {
+      if (_.includes(['ready', 'error'], profile.status)) { return }
+      let steamId = profile.steamId
+      this.loadProfileGames(steamId)
     })
   }
 }

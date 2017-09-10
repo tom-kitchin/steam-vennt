@@ -30,7 +30,8 @@ module.exports = {
     // Mount libraries on build so multiple imports don't fatten the build.
     vendor: [
       'axios',
-      'lodash'
+      'lodash',
+      '~/assets/js/steam'
     ],
     /*
     ** Run ESLINT on save
