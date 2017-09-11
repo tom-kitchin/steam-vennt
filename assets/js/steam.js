@@ -83,6 +83,25 @@ function getOwnedGames (steamId) {
   })
 }
 
+function getFriendList (steamId) {
+  if (!isSteamIdFormat(steamId)) {
+    // If it's not all numbers, it's probably not a steam ID!
+    return Promise.reject(new Error(`${steamId} doesn't look like a valid Steam ID`))
+  }
+  return requestQueue.schedule(axios.get, 'https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
+    params: { key: process.env.STEAM_API_KEY, steamid: steamId, relationship: 'friend' }
+  }).then(({ data }) => {
+    if (_.isEmpty(data)) {
+      // Empty response is probably a failed lookup?
+      return Promise.reject(new Error(`Failed to load friend list for Steam ID '${steamId}'`))
+    }
+    let friendIds = _.map(data.friendslist.friends, (friend) => {
+      return { providedId: friend.steamid, steamId: friend.steamid }
+    })
+    return getProfiles(friendIds)
+  })
+}
+
 let server = {
   getSteamProfiles (steamIds) {
     if (isSteamKeySet()) {
@@ -140,6 +159,17 @@ let server = {
       })
     }
   },
+  getSteamFriendList (steamId) {
+    if (isSteamKeySet()) {
+      return getFriendList(steamId).catch((e) => {
+        return { error: e.message }
+      })
+    } else {
+      return Promise.resolve({
+        error: 'Steam API key not set on server'
+      })
+    }
+  },
   getIconUrl
 }
 
@@ -150,6 +180,11 @@ let client = {
   getSteamProfiles (steamIds) {
     let steamIdString = _.join(steamIds, ',')
     return axios.get(`/api/steam-profile/${steamIdString}`)
+  },
+  getSteamFriendList (steamId) {
+    return axios.get(`/api/steam-profile/${steamId}/friends`, {
+      baseURL: `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}`
+    })
   },
   getIconUrl
 }

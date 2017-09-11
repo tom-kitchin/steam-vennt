@@ -19,4 +19,11 @@ router.get('/steam-profile/:steamid/games', function (req, res, next) {
   })
 })
 
+/* GET friends of steam id by ID. */
+router.get('/steam-profile/:steamid/friends', function (req, res, next) {
+  steam.getSteamFriendList(req.params.steamid).then((data) => {
+    res.json(data)
+  })
+})
+
 export default router

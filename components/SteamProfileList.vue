@@ -20,13 +20,31 @@
             />
             <label :for="`profileCheck-${profile.steamId}`" class="tgl-btn"></label>
           </div>
-          <a
-            v-if="canRemove"
-            @click.prevent="removeProfile(profile.providedId)"
-            class="btn btn-secondary btn-sm float-right"
-            role="button"
-            href="#"
-          >Remove</a>
+          <div v-if="canChange" class="float-right">
+            <a
+              v-if="profile.visibility === 'public'"
+              @click.prevent="showFriendList(profile.steamId)"
+              class="btn btn-primary btn-sm"
+              role="button"
+              href="#"
+            >Show friends</a>
+            <a
+              @click.prevent="removeProfile(profile.providedId)"
+              class="btn btn-secondary btn-sm"
+              role="button"
+              href="#"
+            >Remove</a>
+          </div>
+          <template v-if="hasFriends(profile.steamId)">
+            <hr>
+            <ul class="list-inline">
+              <li
+                v-for="friend in friendLists[profile.steamId]"
+                :key="friend.steamId"
+                class="list-inline-item"
+              ><a class="btn btn-success" href="#" role="button">{{ friend.name }}</a></li>
+            </ul>
+          </template>
         </li>
       </template>
     </ul>
@@ -43,7 +61,7 @@ export default {
       required: true,
       type: Array
     },
-    canRemove: {
+    canChange: {
       required: false,
       type: Boolean,
       default: false
@@ -61,7 +79,8 @@ export default {
   },
   data () {
     return {
-      error: null
+      error: null,
+      friendLists: {}
     }
   },
   computed: {
@@ -91,6 +110,18 @@ export default {
       } else {
         return profile.providedId
       }
+    },
+    showFriendList (steamId) {
+      if (_.isEmpty(this.friendLists[steamId])) {
+        steam.getSteamFriendList(steamId).then(({ data }) => {
+          this.friendLists = {
+            ...this.friendLists,
+            [steamId]: data
+          }
+        })
+      }
+    },
+    addFromFriendList (steamId) {
     },
     removeProfile (providedId) {
       this.$emit('input', _.reject(this.value, _.matches({ providedId })))
@@ -143,6 +174,9 @@ export default {
       if (profile) { return profile }
       profile = _.find(group, _.matches({ providedId: profileId }))
       return profile
+    },
+    hasFriends (steamId) {
+      return !_.isEmpty(this.friendLists[steamId])
     }
   },
   watch: {

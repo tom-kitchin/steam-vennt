@@ -11,7 +11,7 @@
     </div>
     <div>
       <h3>Steam IDs to Vennt</h3>
-      <steam-profile-list v-model="steamProfiles" :canRemove="true" />
+      <steam-profile-list v-model="steamProfiles" :canChange="true" />
       <hr>
       <div class="form-row">
         <div class="form-group col-auto">
