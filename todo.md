@@ -1,4 +1,5 @@
 = TODO
 
-* footer and contact details and such
-* google analytics
+* Update the github readme
+* Set the title (whoops)
+* ?
