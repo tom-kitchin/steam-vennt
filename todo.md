@@ -1,5 +1,4 @@
 # TODO
 
 * Update the github readme
-* Set the title (whoops)
-* ?
+* Add profiles from the friend list of existing profiles
