@@ -182,9 +182,7 @@ let client = {
     return axios.get(`/api/steam-profile/${steamIdString}`)
   },
   getSteamFriendList (steamId) {
-    return axios.get(`/api/steam-profile/${steamId}/friends`, {
-      baseURL: `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 3000}`
-    })
+    return axios.get(`/api/steam-profile/${steamId}/friends`)
   },
   getIconUrl
 }

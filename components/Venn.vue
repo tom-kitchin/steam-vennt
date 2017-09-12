@@ -27,6 +27,7 @@ export default {
     },
     trimVenn (el) {
       let svg = el.querySelector('svg')
+      svg.setAttribute('width', '100%')
       let box = svg.getBBox() // get the visual boundary required to view all children
       if (box.x === 0) {
         // Annoyingly it might not have loaded, so loop until it has.
@@ -35,7 +36,6 @@ export default {
       let viewBox = [box.x, box.y, box.width, box.height].join(' ')
       // set viewable area based on value above
       svg.setAttribute('viewBox', viewBox)
-      svg.setAttribute('width', '100%')
     }
   },
   directives: {
