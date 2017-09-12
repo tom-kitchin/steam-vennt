@@ -16,13 +16,22 @@
       <label :for="`profileCheck-${profile.steamId}`" class="tgl-btn"></label>
     </div>
     <div v-if="canChange" class="float-right">
-      <a
-        v-if="profile.visibility === 'public'"
-        @click.prevent="showFriends"
-        class="btn btn-primary btn-sm"
-        role="button"
-        href="#"
-      >Show friends</a>
+      <template v-if="profile.visibility === 'public'">
+        <a
+          v-if="isShowingFriends"
+          @click.prevent="hideFriends"
+          class="btn btn-primary btn-sm"
+          role="button"
+          href="#"
+        >Hide friends</a>
+        <a
+          v-else
+          @click.prevent="showFriends"
+          class="btn btn-primary btn-sm"
+          role="button"
+          href="#"
+        >Show friends</a>
+      </template>
       <a
         @click.prevent="$emit('remove')"
         class="btn btn-secondary btn-sm"
@@ -114,6 +123,9 @@ export default {
   methods: {
     showFriends () {
       this.isShowingFriends = true
+    },
+    hideFriends () {
+      this.isShowingFriends = false
     },
     addFriend (friend) {
       this.$emit('addFriend', friend)
