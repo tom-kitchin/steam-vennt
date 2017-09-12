@@ -16,22 +16,37 @@ export default {
     vennConfig () {
       return {
         datum: this.datum,
-        callbacks: { onSegmentClicked: this.segmentSelected }
+        callbacks: { onSegmentClicked: this.segmentSelected },
+        trimVenn: this.trimVenn
       }
     }
   },
   methods: {
     segmentSelected (sets) {
       this.$emit('segmentSelected', sets)
+    },
+    trimVenn (el) {
+      let svg = el.querySelector('svg')
+      let box = svg.getBBox() // get the visual boundary required to view all children
+      if (box.x === 0) {
+        // Annoyingly it might not have loaded, so loop until it has.
+        return setTimeout(() => { this.trimVenn(el) }, 50)
+      }
+      let viewBox = [box.x, box.y, box.width, box.height].join(' ')
+      // set viewable area based on value above
+      svg.setAttribute('viewBox', viewBox)
+      svg.setAttribute('width', '100%')
     }
   },
   directives: {
     venn: {
       bind: function (el, { value: config }) {
         drawVenn(el, config.datum, config.callbacks)
+        config.trimVenn(el)
       },
       update: function (el, { value: config }) {
         drawVenn(el, config.datum, config.callbacks)
+        config.trimVenn(el)
       }
     }
   }
