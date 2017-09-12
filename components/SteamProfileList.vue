@@ -20,7 +20,7 @@
 
 <script>
 import SteamProfile from '~/components/SteamProfile'
-import { client as steam } from '~/assets/js/steam'
+import steam from '~/assets/js/steam/client'
 import _ from 'lodash'
 
 export default {

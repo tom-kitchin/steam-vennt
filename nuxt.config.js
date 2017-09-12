@@ -37,7 +37,8 @@ module.exports = {
     vendor: [
       'axios',
       'lodash',
-      '~/assets/js/steam'
+      '~/assets/js/steam/client',
+      '~/assets/js/steam/server'
     ],
     /*
     ** Run ESLINT on save

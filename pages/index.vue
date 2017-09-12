@@ -86,7 +86,7 @@
 
 <script>
 import _ from 'lodash'
-import { client as steam } from '~/assets/js/steam'
+import steam from '~/assets/js/steam/client'
 import SteamProfile from '~/components/SteamProfile'
 import SteamProfileList from '~/components/SteamProfileList'
 import SteamProfileFriends from '~/components/SteamProfileFriends'

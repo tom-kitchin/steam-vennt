@@ -2,8 +2,8 @@ import axios from 'axios'
 import Bottleneck from 'bottleneck'
 import _ from 'lodash'
 
-// Rate limiting tool - 1 concurrent, 500ms gap, queue length limit 20, discard oldest when going over limit, reject promises when dropped.
-let requestQueue = new Bottleneck(1, 500, 20, Bottleneck.strategy.LEAK, true)
+// Rate limiting tool - 1 concurrent, 250ms gap, queue length limit 100, discard oldest when going over limit, reject promises when dropped.
+let requestQueue = new Bottleneck(1, 250, 100, Bottleneck.strategy.LEAK, true)
 
 function isSteamKeySet () {
   return !!process.env.STEAM_API_KEY
@@ -11,11 +11,6 @@ function isSteamKeySet () {
 
 function isSteamIdFormat (steamId) {
   return (/^\d+$/.test(steamId))
-}
-
-function getIconUrl (game) {
-  if (!game.img_icon_url) { return '' }
-  return `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
 }
 
 function resolveVanityUrl (steamVanityId) {
@@ -102,7 +97,7 @@ function getFriendList (steamId) {
   })
 }
 
-let server = {
+export default {
   getSteamProfiles (steamIds) {
     if (isSteamKeySet()) {
       let steamProfiles = _.map(steamIds, (steamId) => {
@@ -170,24 +165,8 @@ let server = {
       })
     }
   },
-  getIconUrl
-}
-
-let client = {
-  getSteamOwnedGames (steamId) {
-    return axios.get(`/api/steam-profile/${steamId}/games`)
-  },
-  getSteamProfiles (steamIds) {
-    let steamIdString = _.join(steamIds, ',')
-    return axios.get(`/api/steam-profile/${steamIdString}`)
-  },
-  getSteamFriendList (steamId) {
-    return axios.get(`/api/steam-profile/${steamId}/friends`)
-  },
-  getIconUrl
-}
-
-export {
-  server,
-  client
+  getIconUrl (game) {
+    if (!game.img_icon_url) { return '' }
+    return `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+  }
 }

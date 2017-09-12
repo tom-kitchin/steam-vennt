@@ -24,7 +24,7 @@
 
 <script>
 import _ from 'lodash'
-import { client as steam } from '~/assets/js/steam'
+import steam from '~/assets/js/steam/client'
 import subsets from '~/assets/js/subset'
 import SteamProfileList from '~/components/SteamProfileList'
 import Venn from '~/components/Venn'

@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import _ from 'lodash'
-import { server as steam } from '~/assets/js/steam'
+import steam from '~/assets/js/steam/server'
 
 const router = Router()
 

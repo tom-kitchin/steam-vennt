@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { client as steam } from '~/assets/js/steam'
+import steam from '~/assets/js/steam/client'
 import _ from 'lodash'
 
 let Multiselect
