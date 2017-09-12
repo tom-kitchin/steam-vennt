@@ -6,7 +6,7 @@
         v-for="profile in value"
         :key="profile.providedId"
         :profile="profile"
-        :canChange="canChange"
+        :canRemove="canRemove"
         :canToggle="canToggle"
         :toggleState="profileToggles"
         :activeSteamIds="activeSteamIds"
@@ -29,7 +29,7 @@ export default {
       required: true,
       type: Array
     },
-    canChange: {
+    canRemove: {
       required: false,
       type: Boolean,
       default: false

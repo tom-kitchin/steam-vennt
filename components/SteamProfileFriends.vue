@@ -1,6 +1,6 @@
 <template>
-  <div v-if="hasFriends">
-    <ul class="list-inline">
+  <div>
+    <div v-show="!loading">
       <multiselect
         :options="filteredFriendList"
         :searchable="true"
@@ -22,7 +22,10 @@
           <span v-if="props.option.visibility !== 'public'"> - this profile is private</span>
         </template>
       </multiselect>
-    </ul>
+    </div>
+    <div v-show="loading" class="alert alert-secondary">
+      Getting your friend list..
+    </div>
   </div>
 </template>
 
@@ -44,13 +47,13 @@ export default {
     activeSteamIds: {
       required: false,
       type: Array,
-      default: []
+      default () { return [] }
     }
   },
   data () {
     return {
       friendList: [],
-      startedLoading: false
+      loading: false
     }
   },
   computed: {
@@ -73,14 +76,11 @@ export default {
   },
   methods: {
     loadFriendList () {
-      if (!this.startedLoading) {
-        this.startedLoading = true
-        return steam.getSteamFriendList(this.steamId).then(({ data }) => {
-          this.friendList = data
-        })
-      } else {
-        return Promise.resolve()
-      }
+      this.loading = true
+      return steam.getSteamFriendList(this.steamId).then(({ data }) => {
+        this.friendList = data
+        this.loading = false
+      })
     },
     addFromFriendList (friend) {
       this.$emit('addFriend', {
@@ -94,6 +94,13 @@ export default {
   },
   mounted () {
     this.loadFriendList()
+  },
+  watch: {
+    steamId (newSteamId, oldSteamId) {
+      if (newSteamId !== oldSteamId) {
+        this.loadFriendList()
+      }
+    }
   }
 }
 </script>

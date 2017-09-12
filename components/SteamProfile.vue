@@ -15,23 +15,7 @@
       />
       <label :for="`profileCheck-${profile.steamId}`" class="tgl-btn"></label>
     </div>
-    <div v-if="canChange" class="float-right">
-      <template v-if="profile.visibility === 'public'">
-        <a
-          v-if="isShowingFriends"
-          @click.prevent="hideFriends"
-          class="btn btn-primary btn-sm"
-          role="button"
-          href="#"
-        >Hide friends</a>
-        <a
-          v-else
-          @click.prevent="showFriends"
-          class="btn btn-primary btn-sm"
-          role="button"
-          href="#"
-        >Show friends</a>
-      </template>
+    <div v-if="canRemove" class="float-right">
       <a
         @click.prevent="$emit('remove')"
         class="btn btn-secondary btn-sm"
@@ -39,19 +23,10 @@
         href="#"
       >Remove</a>
     </div>
-    <template v-if="isShowingFriends">
-      <hr>
-      <steam-profile-friends
-        :steamId="profile.steamId"
-        :activeSteamIds="activeSteamIds"
-        @addFriend="addFriend"
-      />
-    </template>
   </li>
 </template>
 
 <script>
-import SteamProfileFriends from '~/components/SteamProfileFriends'
 import _ from 'lodash'
 
 export default {
@@ -60,7 +35,12 @@ export default {
       required: true,
       type: Object
     },
-    canChange: {
+    showProvidedId: {
+      required: false,
+      type: Boolean,
+      default: false
+    },
+    canRemove: {
       required: false,
       type: Boolean,
       default: false
@@ -73,23 +53,22 @@ export default {
     toggleState: {
       required: false,
       type: Array,
-      default: []
+      default () { return [] }
     },
     activeSteamIds: {
       required: false,
       type: Array,
-      default: []
-    }
-  },
-  data () {
-    return {
-      isShowingFriends: false
+      default () { return [] }
     }
   },
   computed: {
     displayName () {
       if (this.profile.name) {
-        return `${this.profile.name} (${this.profile.providedId})`
+        if (this.showProvidedId) {
+          return `${this.profile.name} (${this.profile.providedId})`
+        } else {
+          return this.profile.name
+        }
       } else {
         return this.profile.providedId
       }
@@ -119,20 +98,6 @@ export default {
         }
       }
     }
-  },
-  methods: {
-    showFriends () {
-      this.isShowingFriends = true
-    },
-    hideFriends () {
-      this.isShowingFriends = false
-    },
-    addFriend (friend) {
-      this.$emit('addFriend', friend)
-    }
-  },
-  components: {
-    SteamProfileFriends
   }
 }
 </script>
