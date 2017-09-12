@@ -94,7 +94,7 @@ export default {
             this.profile.steamId
           ])
         } else {
-          this.$emit('updateToggleState', _.reject(this.toggleState, this.profile.steamId))
+          this.$emit('updateToggleState', _.reject(this.toggleState, (id) => id === this.profile.steamId))
         }
       }
     }

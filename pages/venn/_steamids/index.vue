@@ -4,7 +4,7 @@
     <steam-profile-list
       v-model="steamProfiles"
       :canToggle="true"
-      :profileState="displayedCollection"
+      :profileToggles="displayedCollection"
       @updateChecked="selectDisplayedCollection"
     />
     <hr>
