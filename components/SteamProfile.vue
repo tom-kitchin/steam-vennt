@@ -30,14 +30,18 @@
         href="#"
       >Remove</a>
     </div>
-    <template v-show="isShowingFriends">
+    <template v-if="isShowingFriends">
       <hr>
-      friends here
+      <steam-profile-friends
+        :steamId="profile.steamId"
+        @addFriend="addFriend"
+      />
     </template>
   </li>
 </template>
 
 <script>
+import SteamProfileFriends from '~/components/SteamProfileFriends'
 import _ from 'lodash'
 
 export default {
@@ -91,10 +95,10 @@ export default {
       },
       set (value) {
         if (value) {
-          this.$emit('updateToggleState', {
+          this.$emit('updateToggleState', [
             ...this.toggleState,
             this.profile.steamId
-          })
+          ])
         } else {
           this.$emit('updateToggleState', _.reject(this.toggleState, this.profile.steamId))
         }
@@ -104,7 +108,13 @@ export default {
   methods: {
     showFriends () {
       this.isShowingFriends = true
+    },
+    addFriend (friend) {
+      this.$emit('addFriend', friend)
     }
+  },
+  components: {
+    SteamProfileFriends
   }
 }
 </script>

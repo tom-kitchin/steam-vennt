@@ -10,7 +10,7 @@
           class="btn btn-success"
           href="#"
           role="button"
-          @click="addFromFriendList(friend)"
+          @click.prevent="addFromFriendList(friend)"
         >{{ friend.name }}</a>
       </li>
     </ul>
@@ -28,7 +28,7 @@ export default {
       type: String
     },
     activeSteamIds: {
-      required: true,
+      required: false,
       type: Array
     }
   },
@@ -43,9 +43,9 @@ export default {
     }
   },
   methods: {
-    loadFriendList (steamId) {
-      if (!this.hasFriends)) {
-        steam.getSteamFriendList(steamId).then(({ data }) => {
+    loadFriendList () {
+      if (!this.hasFriends) {
+        steam.getSteamFriendList(this.steamId).then(({ data }) => {
           this.friendList = data
         })
       }

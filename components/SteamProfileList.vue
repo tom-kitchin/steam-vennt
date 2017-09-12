@@ -2,7 +2,7 @@
   <div>
     <div v-if="error" class="alert alert-danger" role="alert">ERROR: {{ error }}</div>
     <ul v-else class="list-group">
-      <profile
+      <steam-profile
         v-for="profile in value"
         :key="profile.providedId"
         :profile="profile"
@@ -11,12 +11,14 @@
         :toggleState="profileToggles"
         @updateToggleState="updateChecked"
         @remove="removeProfile(profile.providedId)"
+        @addFriend="addProfile"
       />
     </ul>
   </div>
 </template>
 
 <script>
+import SteamProfile from '~/components/SteamProfile'
 import { client as steam } from '~/assets/js/steam'
 import _ from 'lodash'
 
@@ -48,6 +50,12 @@ export default {
     }
   },
   methods: {
+    addProfile (profile) {
+      this.$emit('input', [
+        ...this.value,
+        profile
+      ])
+    },
     removeProfile (providedId) {
       this.$emit('input', _.reject(this.value, _.matches({ providedId })))
     },
@@ -106,7 +114,7 @@ export default {
   },
   watch: {
     value (newValue, oldValue) {
-      if (!_.isEqual(_.keys(newValue), _.keys(oldValue))) {
+      if (_.difference(_.keys(newValue), _.keys(oldValue)).length > 0) {
         // Re-request profile data from the API when the value profiles change.
         this.loadProfiles()
       }
@@ -116,6 +124,9 @@ export default {
     if (this.value.length > 0) {
       this.loadProfiles()
     }
+  },
+  components: {
+    SteamProfile
   }
 }
 </script>
