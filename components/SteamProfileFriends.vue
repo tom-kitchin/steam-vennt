@@ -1,26 +1,27 @@
 <template>
   <div v-if="hasFriends">
     <ul class="list-inline">
-      <li
-        v-for="friend in filteredFriendList"
-        :key="friend.steamId"
-        class="list-inline-item"
+      <multiselect
+        :options="filteredFriendList"
+        :searchable="true"
+        :resetAfter="true"
+        :option-height="66"
+        @select="addFromFriendList"
+        track-by="steamId"
+        label="name"
+        placeholder="Add your friends!"
       >
-        <a
-          v-if="friend.visibility === 'public'"
-          class="btn btn-success"
-          href="#"
-          role="button"
-          @click.prevent="addFromFriendList(friend)"
-        >{{ friend.name }}</a>
-        <a
-          v-else
-          class="btn btn-success disabled"
-          href="#"
-          role="button"
-          @click.prevent
-        >{{ friend.name }}</a>
-      </li>
+        <template slot="option" scope="props">
+          <img
+            v-if="props.option.avatar"
+            class="img-thumbnail"
+            :src="props.option.avatar"
+            :alt="`Profile image for steam ID ${props.option.name}`"
+          />
+          <span class="profile-text">{{ props.option.name }}</span>
+          <span v-if="props.option.visibility !== 'public'"> - this profile is private</span>
+        </template>
+      </multiselect>
     </ul>
   </div>
 </template>
@@ -28,6 +29,11 @@
 <script>
 import { client as steam } from '~/assets/js/steam'
 import _ from 'lodash'
+
+let Multiselect
+if (process.browser) {
+  Multiselect = require('vue-multiselect').default
+}
 
 export default {
   props: {
@@ -43,7 +49,8 @@ export default {
   },
   data () {
     return {
-      friendList: []
+      friendList: [],
+      startedLoading: false
     }
   },
   computed: {
@@ -51,17 +58,28 @@ export default {
       return !_.isEmpty(this.friendList)
     },
     filteredFriendList () {
-      return _.reject(this.friendList, (friend) => {
+      return _(this.friendList).reject((friend) => {
         return _.includes(this.activeSteamIds, friend.steamId)
-      })
+      }).map((friend) => {
+        if (friend.visibility === 'private') {
+          return {
+            ...friend,
+            $isDisabled: true
+          }
+        }
+        return friend
+      }).value()
     }
   },
   methods: {
     loadFriendList () {
-      if (!this.hasFriends) {
-        steam.getSteamFriendList(this.steamId).then(({ data }) => {
+      if (!this.startedLoading) {
+        this.startedLoading = true
+        return steam.getSteamFriendList(this.steamId).then(({ data }) => {
           this.friendList = data
         })
+      } else {
+        return Promise.resolve()
       }
     },
     addFromFriendList (friend) {
@@ -71,8 +89,13 @@ export default {
       })
     }
   },
+  components: {
+    Multiselect
+  },
   mounted () {
     this.loadFriendList()
   }
 }
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
