@@ -71,7 +71,7 @@ export default {
           }
         }
         return friend
-      }).value()
+      }).sortBy((friend) => friend.name).value()
     }
   },
   methods: {
