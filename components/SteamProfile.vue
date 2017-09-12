@@ -34,6 +34,7 @@
       <hr>
       <steam-profile-friends
         :steamId="profile.steamId"
+        :activeSteamIds="activeSteamIds"
         @addFriend="addFriend"
       />
     </template>
@@ -61,6 +62,11 @@ export default {
       default: false
     },
     toggleState: {
+      required: false,
+      type: Array,
+      default: []
+    },
+    activeSteamIds: {
       required: false,
       type: Array,
       default: []

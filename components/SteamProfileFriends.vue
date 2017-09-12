@@ -2,15 +2,23 @@
   <div v-if="hasFriends">
     <ul class="list-inline">
       <li
-        v-for="friend in friendList"
+        v-for="friend in filteredFriendList"
         :key="friend.steamId"
         class="list-inline-item"
       >
         <a
+          v-if="friend.visibility === 'public'"
           class="btn btn-success"
           href="#"
           role="button"
           @click.prevent="addFromFriendList(friend)"
+        >{{ friend.name }}</a>
+        <a
+          v-else
+          class="btn btn-success disabled"
+          href="#"
+          role="button"
+          @click.prevent
         >{{ friend.name }}</a>
       </li>
     </ul>
@@ -29,7 +37,8 @@ export default {
     },
     activeSteamIds: {
       required: false,
-      type: Array
+      type: Array,
+      default: []
     }
   },
   data () {
@@ -40,6 +49,11 @@ export default {
   computed: {
     hasFriends () {
       return !_.isEmpty(this.friendList)
+    },
+    filteredFriendList () {
+      return _.reject(this.friendList, (friend) => {
+        return _.includes(this.activeSteamIds, friend.steamId)
+      })
     }
   },
   methods: {

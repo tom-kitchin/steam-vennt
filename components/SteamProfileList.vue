@@ -9,6 +9,7 @@
         :canChange="canChange"
         :canToggle="canToggle"
         :toggleState="profileToggles"
+        :activeSteamIds="activeSteamIds"
         @updateToggleState="updateChecked"
         @remove="removeProfile(profile.providedId)"
         @addFriend="addProfile"
@@ -47,6 +48,11 @@ export default {
   data () {
     return {
       error: null
+    }
+  },
+  computed: {
+    activeSteamIds () {
+      return _.map(this.value, (profile) => profile.steamId)
     }
   },
   methods: {
