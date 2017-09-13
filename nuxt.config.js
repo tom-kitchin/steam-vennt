@@ -7,7 +7,8 @@ module.exports = {
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-      { hid: 'description', name: 'description', content: "Pick the game night game easily with a venn diagram of your friends' steam games" }
+      { hid: 'description', name: 'description', content: "Pick the game night game easily with a venn diagram of your friends' steam games" },
+      { name: 'format-detection', content: 'telephone=no' } // Block a stupid iOS Safari bug - see https://github.com/nuxt/nuxt.js/issues/130
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
