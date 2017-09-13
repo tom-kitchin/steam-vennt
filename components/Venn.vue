@@ -12,12 +12,29 @@ export default {
       type: Array
     }
   },
+  data () {
+    return {
+      ready: false
+    }
+  },
   computed: {
     vennConfig () {
       return {
         datum: this.datum,
         callbacks: { onSegmentClicked: this.segmentSelected },
         trimVenn: this.trimVenn
+      }
+    },
+    computedStyle () {
+      if (!this.ready) {
+        return {
+          position: 'absolute',
+          left: '-9000'
+        }
+      } else {
+        return {
+          position: 'initial'
+        }
       }
     }
   },
@@ -28,8 +45,9 @@ export default {
     trimVenn (el) {
       let svg = el.querySelector('svg')
       svg.setAttribute('width', '100%')
+      svg.setAttribute('height', '100%')
       let box = svg.getBBox() // get the visual boundary required to view all children
-      if (box.x === 0) {
+      if (box.width === 0) {
         // Annoyingly it might not have loaded, so loop until it has.
         return setTimeout(() => { this.trimVenn(el) }, 50)
       }
