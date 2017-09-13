@@ -1,28 +1,56 @@
 const Database = require('better-sqlite3')
-import _ from 'lodash'
+const _ = require('lodash')
 
 const DBPATH = 'vennt.sqlite3'
 
+function open (call) {
+  let db = new Database(DBPATH)
+  call(db)
+  db.close()
+}
+
+function initialize () {
+  let db = new Database(DBPATH)
+  db.prepare('CREATE TABLE games (id INTEGER PRIMARY KEY, appid INTEGER, name TEXT, tags TEXT)').run()
+  db.close()
+}
+
+function addGame ({ appId, name, tags }) {
+  let db = new Database(DBPATH)
+  db.prepare('INSERT INTO games (appid, name, tags) VALUES (@appId, @name, @tags)').run({ appId, name, tags: _.join(tags, ',') })
+  db.close()
+}
+
+function getTagsForGame (appId) {
+  let db = new Database(DBPATH)
+  let game = db.prepare('SELECT * FROM games WHERE appid = ?').get([appId])
+  db.close()
+  return _.split(game.tags, ',')
+}
+
+function getTagsForGames (appIds) {
+  let db = new Database(DBPATH)
+  let games = db.prepare(`SELECT * FROM games WHERE appid IN (${_.join(appIds, ',')})`).all()
+  db.close()
+  return _(games).map(function (game) {
+    return [game.appid, _.split(game.tags, ',')]
+  }).fromPairs().value()
+}
+
+function loadGamesFromSteamSpyJson (data) {
+  let db = new Database(DBPATH)
+  let statement = db.prepare('INSERT INTO games (appid, name, tags) VALUES (@appId, @name, @tags)')
+  _.each(data, function (game) {
+    statement.run({ appId: game.appid, name: game.name, tags: _(game.tags).keys().join(',') })
+  })
+  db.close()
+}
+
 module.exports = {
-  serialize (call) {
-    let db = new Database(DBPATH)
-    db.serialize(call(db))
-    db.close()
-  },
-  initialize () {
-    let db = new Database(DBPATH)
-    db.prepare('CREATE TABLE games (id INTEGER PRIMARY KEY, appid INTEGER, name TEXT)').run()
-    db.prepare('CREATE TABLE tags (id INTEGER PRIMARY KEY, name TEXT)').run()
-    db.prepare('CREATE TABLE games_tags (id INTEGER PRIMARY KEY, game_id INTEGER, tag_id INTEGER)').run()
-    db.close()
-  },
-  addGame ({ appId, name, tags }) {
-    let db = new Database(DBPATH)
-    let game = db.prepare('INSERT INTO games VALUES (@appid, @name)').run({ appid, name })
-    _.each(tags, (tag) => {
-      let tag = db.prepare('INSERT INTO tags VALUES (?)').run(tag)
-      db.prepare('INSERT INTO games_tags VALUES (@gameId, @tagId)').run({ gameId: game.lastInsertROWID, tagId: tag.lastInsertROWID })
-    })
-    db.close()
-  }
+  open,
+  initialize,
+  addGame,
+  getTagsForGame,
+  getTagsForGames,
+  loadGamesFromSteamSpyJson
 }

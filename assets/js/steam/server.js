@@ -1,6 +1,7 @@
 import axios from 'axios'
 import Bottleneck from 'bottleneck'
 import _ from 'lodash'
+import db from '~/server/db'
 
 // Rate limiting tool - 1 concurrent, 250ms gap, queue length limit 100, discard oldest when going over limit, reject promises when dropped.
 let requestQueue = new Bottleneck(1, 250, 100, Bottleneck.strategy.LEAK, true)
@@ -142,6 +143,13 @@ export default {
         // Maybe it's a vanity ID?
         return resolveVanityUrl(steamId).then((response) => {
           return getOwnedGames(response.steamid).then((response) => {
+            let tags = db.getTagsForGames(_.map(response, (game) => game.appid))
+            response = _.map(response, (game) => {
+              return {
+                ...game,
+                tags: tags[game.appid]
+              }
+            })
             return response
           })
         }).catch((e) => {
