@@ -56,7 +56,7 @@
           Now add the Steam friends you'd like to compare with:
         </p>
         <steam-profile-friends
-          v-if="mainProfile.steamId"
+          v-if="mainProfileReady"
           :steamId="mainProfile.steamId"
           :activeSteamIds="activeSteamIds"
           @addFriend="addFriend"
@@ -152,13 +152,23 @@ export default {
         if (_.isEmpty(data)) { error = `Failed to load data for profile ${this.mainProfile.providedId}` }
         if (data.error) { error = data.error }
 
+        if (error) {
+          this.mainProfile = {
+            ...this.mainProfile,
+            status: 'error',
+            error: error
+          }
+          return
+        }
+
         let newProfile = data[0]
         if (_.isEmpty(newProfile)) { error = `Failed to load data for profile ${this.mainProfile.providedId}` }
-        if (newProfile.error) { error = data[0].error }
+        if (newProfile.error) { error = newProfile.error }
         if (newProfile.visibility !== 'public') { error = `Profile for Steam ID ${this.mainProfile.providedId} is set to private` }
 
         if (error) {
           this.mainProfile = {
+            ...newProfile,
             ...this.mainProfile,
             status: 'error',
             error: error
