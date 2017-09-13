@@ -45,7 +45,7 @@ export default {
     trimVenn (el) {
       let svg = el.querySelector('svg')
       svg.setAttribute('width', '100%')
-      svg.setAttribute('height', '100%')
+      svg.setAttribute('height', '20em')
       let box = svg.getBBox() // get the visual boundary required to view all children
       if (box.width === 0) {
         // Annoyingly it might not have loaded, so loop until it has.
