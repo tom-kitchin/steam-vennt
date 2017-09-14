@@ -12,6 +12,9 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ],
+    script: [
+      { src: 'https://use.fontawesome.com/1e8d643972.js' }
     ]
   },
   /*

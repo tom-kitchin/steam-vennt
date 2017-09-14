@@ -2,9 +2,9 @@
   <div>
     <h4 v-if="gameCollection.steamIds.length > 1">{{ gameCollectionNameSentence }} have {{ gameCollection.gameCount || 'no' }} games in common</h4>
     <h4 v-else>{{ gameCollectionNameSentence }} owns {{ gameCollection.gameCount }} games</h4>
-    <table class="table">
-      <game v-for="game in gameCollection.games" :game="game" />
-    </table>
+    <ul class="list-group">
+      <game v-for="game in gameCollection.games" :key="game.appId" :game="game" />
+    </ul>
   </div>
 </template>
 
