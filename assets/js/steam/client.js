@@ -14,6 +14,6 @@ export default {
   },
   getIconUrl (game) {
     if (!game.img_icon_url) { return '' }
-    return `http://media.steampowered.com/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+    return `https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
   }
 }
