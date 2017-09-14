@@ -142,19 +142,19 @@ export default {
       return getOwnedGames(steamId).catch(() => {
         // Maybe it's a vanity ID?
         return resolveVanityUrl(steamId).then((response) => {
-          return getOwnedGames(response.steamid).then((response) => {
-            let tags = db.getTagsForGames(_.map(response, (game) => game.appid))
-            response = _.map(response, (game) => {
-              return {
-                ...game,
-                tags: tags[game.appid]
-              }
-            })
-            return response
-          })
+          return getOwnedGames(response.steamid)
         }).catch((e) => {
           return { error: e.message }
         })
+      }).then((response) => {
+        let tags = db.getTagsForGames(_.map(response.games, (game) => game.appid))
+        response.games = _.map(response.games, (game) => {
+          return {
+            ...game,
+            tags: tags[game.appid]
+          }
+        })
+        return response
       })
     } else {
       return Promise.resolve({
