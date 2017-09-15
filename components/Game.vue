@@ -2,7 +2,7 @@
   <li class="list-group-item">
     <div class="row">
       <div class="col-md-1 col-12">
-        <img v-if="iconUrl" class="img-thumbnail" :src="iconUrl" :alt="`Icon for ${game.name}`" />
+        <img v-if="game.iconUrl" class="img-thumbnail" :src="game.iconUrl" :alt="`Icon for ${game.name}`" />
       </div>
       <div class="col-md-8 col-12">
         <span class="game-text">{{ game.name }}</span>
@@ -20,7 +20,6 @@
 </template>
 
 <script>
-import steam from '~/assets/js/steam/client'
 import _ from 'lodash'
 
 export default {
@@ -41,9 +40,6 @@ export default {
     }
   },
   computed: {
-    iconUrl () {
-      return steam.getIconUrl(this.game)
-    },
     tags () {
       return _(this.game.tags).map((tag) => {
         if (this.tagIcons[tag]) {
