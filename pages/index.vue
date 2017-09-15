@@ -28,12 +28,12 @@
               <input id="steamId" v-model="newSteamId" @keyup.enter="setMainProfile" placeholder="Enter your Steam ID" />
             </div>
             <div class="form-group col-auto">
-              <label for="addSteamId" class="sr-only">Enter Steam ID</label>
+              <label for="addSteamId" class="sr-only">Continue</label>
               <a
                 id="addSteamId"
                 class="btn btn-primary btn-sm"
+                :class="{ disabled: !newSteamId }"
                 role="button"
-                aria-label="Continue"
                 @click.prevent="setMainProfile"
                 href="#"
               ><i class="fa fa-check" aria-hidden="true"></i> Continue</a>
@@ -71,6 +71,25 @@
             :activeSteamIds="activeSteamIds"
             @addFriend="addFriend"
           />
+          <div>
+            <div class="form-row mt-3">
+              <div class="form-group col-auto">
+                <label for="moreSteamIds" class="mr-2">Or enter more Steam IDs by hand:</label>
+                <input id="moreSteamIds" v-model="extraSteamId" @keyup.enter="addFriendId" placeholder="Steam ID" />
+              </div>
+              <div class="form-group col-auto">
+                <label for="addSteamId" class="sr-only">Add</label>
+                <a
+                  id="addSteamId"
+                  class="btn btn-primary btn-sm"
+                  :class="{ disabled: !extraSteamId }"
+                  role="button"
+                  @click.prevent="addFriendId"
+                  href="#"
+                ><i class="fa fa-plus" aria-hidden="true"></i> Add</a>
+              </div>
+            </div>
+          </div>
           <steam-profile-list
             v-model="friendProfiles"
             :canRemove="true"
@@ -109,6 +128,7 @@ export default {
     return {
       mainProfile: {},
       newSteamId: '',
+      extraSteamId: '',
       friendProfiles: []
     }
   },
@@ -151,13 +171,15 @@ export default {
   },
   methods: {
     setMainProfile () {
-      let providedId = this.newSteamId
-      this.newSteamId = ''
-      this.mainProfile = {
-        providedId,
-        status: 'loading'
+      if (this.newSteamId) {
+        let providedId = this.newSteamId
+        this.newSteamId = ''
+        this.mainProfile = {
+          providedId,
+          status: 'loading'
+        }
+        this.loadMainProfile()
       }
-      this.loadMainProfile()
     },
     loadMainProfile () {
       return steam.getSteamProfiles([this.mainProfile.providedId]).then(({ data }) => {
@@ -225,6 +247,18 @@ export default {
         ...this.friendProfiles,
         friend
       ]
+    },
+    addFriendId () {
+      if (this.extraSteamId) {
+        this.friendProfiles = [
+          ...this.friendProfiles,
+          {
+            providedId: this.extraSteamId,
+            status: 'loading'
+          }
+        ]
+        this.extraSteamId = ''
+      }
     }
   },
   components: {

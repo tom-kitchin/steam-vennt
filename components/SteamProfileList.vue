@@ -132,9 +132,9 @@ export default {
     }
   },
   watch: {
-    value (newValue, oldValue) {
-      if (_.difference(_.keys(newValue), _.keys(oldValue)).length > 0) {
-        // Re-request profile data from the API when the value profiles change.
+    value (newValue) {
+      if (_.some(newValue, _.matches({ status: 'loading' }))) {
+        // Re-request profile data from the API when there are new profiles which need loading.
         this.loadProfiles()
       }
     }
