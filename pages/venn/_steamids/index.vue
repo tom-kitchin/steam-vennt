@@ -14,7 +14,11 @@
     <hr>
     <venn v-if="readyForVenn" :datum="vennDatum" @segmentSelected="selectDisplayedCollection" />
     <hr>
-    <game-collection v-if="currentGameCollection"  :gameCollection="currentGameCollection" />
+    <game-collection
+      v-if="currentGameCollection"
+      :gameCollection="currentGameCollection"
+      :defaultSort="{ tag: 'Multiplayer' }"
+    />
   </section>
 </template>
 

@@ -27,8 +27,15 @@
             <input id="steamId" v-model="newSteamId" @keyup.enter="setMainProfile" placeholder="Enter your Steam ID" />
           </div>
           <div class="form-group col-auto">
-            <label for="addSteamId" class="sr-only">Add Steam ID</label>
-            <a id="addSteamId" class="btn btn-primary btn-sm" role="button" @click.prevent="setMainProfile" href="#"><i class="fa fa-check" aria-hidden="true"></i></a>
+            <label for="addSteamId" class="sr-only">Enter Steam ID</label>
+            <a
+              id="addSteamId"
+              class="btn btn-primary btn-sm"
+              role="button"
+              aria-label="Continue"
+              @click.prevent="setMainProfile"
+              href="#"
+            ><i class="fa fa-check" aria-hidden="true"></i></a>
           </div>
         </div>
         <div class="alert alert-secondary">
