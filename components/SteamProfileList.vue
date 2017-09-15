@@ -105,6 +105,19 @@ export default {
           }
         })
         this.$emit('input', updatedProfiles)
+      }).catch((e) => {
+        let data
+        if (e.response) {
+          data = e.response.data
+        }
+
+        if (_.isEmpty(data)) {
+          this.error = `Failed to load data for profiles`
+        } else if (data.error) {
+          this.error = data.error
+        } else {
+          throw new Error(e)
+        }
       })
     },
     findProfileByIdInGroup (group, profileId) {

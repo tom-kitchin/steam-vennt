@@ -25,7 +25,7 @@
     <ul class="list-group">
       <game
         v-for="game in filteredSortedGameCollection"
-        :key="game.appId"
+        :key="game.appid"
         :game="game"
         :tagIcons="tagIcons"
       />

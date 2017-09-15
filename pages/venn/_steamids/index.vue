@@ -1,24 +1,36 @@
 <template>
   <section class="container">
-    <h3 v-if="currentGameCollection" class="game-count-header">
-      <span v-if="currentGameCollection.steamIds.length > 1">{{ gameCollectionNameSentence }} have {{ currentGameCollection.gameCount || 'no' }} games in common</span>
-      <span v-else>{{ gameCollectionNameSentence }} owns {{ currentGameCollection.gameCount }} games</span>
-    </h3>
-    <hr>
+    <transition>
+      <div v-if="currentGameCollection">
+        <h3 class="game-count-header">
+          <span v-if="currentGameCollection.steamIds.length > 1">{{ gameCollectionNameSentence }} have {{ currentGameCollection.gameCount || 'no' }} games in common</span>
+          <span v-else>{{ gameCollectionNameSentence }} owns {{ currentGameCollection.gameCount }} games</span>
+        </h3>
+        <hr>
+      </div>
+    </transition>
     <steam-profile-list
       v-model="steamProfiles"
       :canToggle="true"
       :profileToggles="displayedCollection"
       @updateChecked="selectDisplayedCollection"
     />
-    <hr>
-    <venn v-if="readyForVenn" :datum="vennDatum" @segmentSelected="selectDisplayedCollection" />
-    <hr>
-    <game-collection
-      v-if="currentGameCollection"
-      :gameCollection="currentGameCollection"
-      :defaultSort="{ tag: 'Multiplayer' }"
-    />
+    <transition>
+      <div v-if="readyForVenn">
+        <hr>
+        <venn :datum="vennDatum" @segmentSelected="selectDisplayedCollection" />
+      </div>
+    </transition>
+    <transition>
+      <div v-if="currentGameCollection">
+        <hr>
+        <game-collection
+          v-if="currentGameCollection"
+          :gameCollection="currentGameCollection"
+          :defaultSort="{ tag: 'Multiplayer' }"
+        />
+      </div>
+    </transition>
   </section>
 </template>
 
@@ -182,3 +194,12 @@ export default {
   }
 }
 </script>
+
+<style>
+.v-enter-active, .v-leave-active {
+  transition: opacity 0.5s
+}
+.v-enter, .v-leave-to {
+  opacity: 0
+}
+</style>

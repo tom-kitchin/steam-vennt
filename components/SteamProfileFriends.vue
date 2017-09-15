@@ -80,6 +80,12 @@ export default {
       return steam.getSteamFriendList(this.steamId).then(({ data }) => {
         this.friendList = data
         this.loading = false
+      }).catch((e) => {
+        if (_.get(e, 'response.data.error')) {
+          console.error(e.response.data.error)
+        } else {
+          console.error(e)
+        }
       })
     },
     addFromFriendList (friend) {

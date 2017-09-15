@@ -17,75 +17,81 @@
           @remove="clearMainProfile"
         />
       </div>
-      <div v-show="!hasMainProfile">
-        <p class="instruction">
-          First, enter your steam ID:
-        </p>
-        <div class="form-row">
-          <div class="form-group col-auto">
-            <label for="steamId" class="sr-only">Steam ID</label>
-            <input id="steamId" v-model="newSteamId" @keyup.enter="setMainProfile" placeholder="Enter your Steam ID" />
+      <transition>
+        <div v-show="!hasMainProfile">
+          <p class="instruction">
+            First, enter your steam ID:
+          </p>
+          <div class="form-row">
+            <div class="form-group col-auto">
+              <label for="steamId" class="sr-only">Steam ID</label>
+              <input id="steamId" v-model="newSteamId" @keyup.enter="setMainProfile" placeholder="Enter your Steam ID" />
+            </div>
+            <div class="form-group col-auto">
+              <label for="addSteamId" class="sr-only">Enter Steam ID</label>
+              <a
+                id="addSteamId"
+                class="btn btn-primary btn-sm"
+                role="button"
+                aria-label="Continue"
+                @click.prevent="setMainProfile"
+                href="#"
+              ><i class="fa fa-check" aria-hidden="true"></i> Continue</a>
+            </div>
           </div>
-          <div class="form-group col-auto">
-            <label for="addSteamId" class="sr-only">Enter Steam ID</label>
-            <a
-              id="addSteamId"
-              class="btn btn-primary btn-sm"
-              role="button"
-              aria-label="Continue"
-              @click.prevent="setMainProfile"
-              href="#"
-            ><i class="fa fa-check" aria-hidden="true"></i> Continue</a>
+          <div class="alert alert-secondary">
+            <p>
+              This ID should be either the unique numeric ID Steam assigns to your
+              account or the custom URL you can set in your Steam profile settings,
+              <em>not</em> your profile or account name.
+            </p>
+            <p>
+              You can find it by going to your Steam profile in your browser and looking
+              in the address bar for the following:
+            </p>
+            <figure class="figure">
+              <img :src="require('~/assets/images/steam-id-example.png')" class="figure-img img-fluid" alt="Picture of the Steam ID section of a URL" />
+              <figcaption class="figure-caption text-right">Here my Steam ID is 'twodaemon'</figcaption>
+            </figure>
+            <p>
+              Note that <strong>Vennt can't read private profiles!</strong>
+            </p>
           </div>
         </div>
-        <div class="alert alert-secondary">
-          <p>
-            This ID should be either the unique numeric ID Steam assigns to your
-            account or the custom URL you can set in your Steam profile settings,
-            <em>not</em> your profile or account name.
+      </transition>
+      <transition>
+        <div v-show="mainProfileReady">
+          <hr>
+          <p :class="{ instruction: !hasReadyFriends }">
+            Now add the Steam friends you'd like to compare with:
           </p>
-          <p>
-            You can find it by going to your Steam profile in your browser and looking
-            in the address bar for the following:
-          </p>
-          <figure class="figure">
-            <img :src="require('~/assets/images/steam-id-example.png')" class="figure-img img-fluid" alt="Picture of the Steam ID section of a URL" />
-            <figcaption class="figure-caption text-right">Here my Steam ID is 'twodaemon'</figcaption>
-          </figure>
-          <p>
-            Note that <strong>Vennt can't read private profiles!</strong>
-          </p>
+          <steam-profile-friends
+            v-if="mainProfileReady"
+            :steamId="mainProfile.steamId"
+            :activeSteamIds="activeSteamIds"
+            @addFriend="addFriend"
+          />
+          <steam-profile-list
+            v-model="friendProfiles"
+            :canRemove="true"
+          />
         </div>
-      </div>
-      <div v-show="mainProfileReady">
-        <hr>
-        <p :class="{ instruction: !hasReadyFriends }">
-          Now add the Steam friends you'd like to compare with:
-        </p>
-        <steam-profile-friends
-          v-if="mainProfileReady"
-          :steamId="mainProfile.steamId"
-          :activeSteamIds="activeSteamIds"
-          @addFriend="addFriend"
-        />
-        <steam-profile-list
-          v-model="friendProfiles"
-          :canRemove="true"
-        />
-      </div>
-      <div v-show="hasReadyFriends">
-        <hr>
-        <p class="instruction">
-          All ready? Then hit the button!
-        </p>
-        <a
-          :href="vennUrl"
-          class="btn btn-primary"
-          :class="venntButtonClass"
-          :aria-disabled="venntButtonAriaDisabled"
-          role="button"
-        >Go Go Vennt!</a>
-      </div>
+      </transition>
+      <transition>
+        <div v-show="hasReadyFriends">
+          <hr>
+          <p class="instruction">
+            All ready? Then hit the button!
+          </p>
+          <a
+            :href="vennUrl"
+            class="btn btn-primary"
+            :class="venntButtonClass"
+            :aria-disabled="venntButtonAriaDisabled"
+            role="button"
+          >Go Go Vennt!</a>
+        </div>
+      </transition>
     </div>
 
   </section>
@@ -232,5 +238,12 @@ export default {
 <style>
 .instruction {
   font-weight: bold;
+}
+
+.v-enter-active, .v-leave-active {
+  transition: opacity 0.5s
+}
+.v-enter, .v-leave-to {
+  opacity: 0
 }
 </style>
