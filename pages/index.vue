@@ -24,11 +24,18 @@
         <div class="form-row">
           <div class="form-group col-auto">
             <label for="steamId" class="sr-only">Steam ID</label>
-            <input id="steamId" v-model="newSteamId" @keyup.enter="setMainProfile" placeholder="Add Steam ID" />
+            <input id="steamId" v-model="newSteamId" @keyup.enter="setMainProfile" placeholder="Enter your Steam ID" />
           </div>
           <div class="form-group col-auto">
-            <label for="addSteamId" class="sr-only">Add Steam ID</label>
-            <a id="addSteamId" class="btn btn-primary btn-sm" role="button" @click.prevent="setMainProfile" href="#">Add</a>
+            <label for="addSteamId" class="sr-only">Enter Steam ID</label>
+            <a
+              id="addSteamId"
+              class="btn btn-primary btn-sm"
+              role="button"
+              aria-label="Continue"
+              @click.prevent="setMainProfile"
+              href="#"
+            ><i class="fa fa-check" aria-hidden="true"></i> Continue</a>
           </div>
         </div>
         <div class="alert alert-secondary">
@@ -181,10 +188,31 @@ export default {
           ...this.mainProfile,
           status: 'ready'
         }
+      }).catch((e) => {
+        let data
+        if (e.response) {
+          data = e.response.data
+        }
+
+        let profileError
+        if (_.isEmpty(data)) { profileError = `Failed to load data for profile ${this.mainProfile.providedId}` }
+        if (data.error) { profileError = data.error }
+
+        if (profileError) {
+          this.mainProfile = {
+            ...this.mainProfile,
+            status: 'error',
+            error: profileError
+          }
+          return
+        }
+
+        throw new Error(e)
       })
     },
     clearMainProfile () {
       this.mainProfile = {}
+      this.friendProfiles = []
     },
     addFriend (friend) {
       this.friendProfiles = [

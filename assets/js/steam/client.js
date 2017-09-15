@@ -11,9 +11,5 @@ export default {
   },
   getSteamFriendList (steamId) {
     return axios.get(`/api/steam-profile/${steamId}/friends`)
-  },
-  getIconUrl (game) {
-    if (!game.img_icon_url) { return '' }
-    return `https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
   }
 }

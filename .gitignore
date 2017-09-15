@@ -15,3 +15,7 @@ build
 
 # Mac
 .DS_Store
+
+# local store stuff
+data
+vennt.sqlite3

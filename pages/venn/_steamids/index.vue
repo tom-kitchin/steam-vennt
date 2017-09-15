@@ -1,6 +1,10 @@
 <template>
   <section class="container">
-    <h3>Profiles</h3>
+    <h3 v-if="currentGameCollection" class="game-count-header">
+      <span v-if="currentGameCollection.steamIds.length > 1">{{ gameCollectionNameSentence }} have {{ currentGameCollection.gameCount || 'no' }} games in common</span>
+      <span v-else>{{ gameCollectionNameSentence }} owns {{ currentGameCollection.gameCount }} games</span>
+    </h3>
+    <hr>
     <steam-profile-list
       v-model="steamProfiles"
       :canToggle="true"
@@ -10,16 +14,11 @@
     <hr>
     <venn v-if="readyForVenn" :datum="vennDatum" @segmentSelected="selectDisplayedCollection" />
     <hr>
-    <div v-if="currentGameCollection">
-      <h4 v-if="currentGameCollection.steamIds.length > 1">{{ currentGameCollectionNameSentence }} have {{ currentGameCollection.gameCount || 'no' }} games in common</h4>
-      <h4 v-else>{{ currentGameCollectionNameSentence }} owns {{ currentGameCollection.gameCount }} games</h4>
-      <table class="table">
-        <tr v-for="game in currentGameCollection.games">
-          <td><img :src="getIconUrl(game)" /></td>
-          <td>{{ game.name }}</td>
-        </tr>
-      </table>
-    </div>
+    <game-collection
+      v-if="currentGameCollection"
+      :gameCollection="currentGameCollection"
+      :defaultSort="{ tag: 'Multiplayer' }"
+    />
   </section>
 </template>
 
@@ -29,6 +28,7 @@ import steam from '~/assets/js/steam/client'
 import subsets from '~/assets/js/subset'
 import SteamProfileList from '~/components/SteamProfileList'
 import Venn from '~/components/Venn'
+import GameCollection from '~/components/GameCollection'
 
 export default {
   validate ({ params }) {
@@ -93,11 +93,6 @@ export default {
     currentGameCollection () {
       return _.find(this.commonGames, (gameSet) => _.isEqual(gameSet.steamIds.sort(), this.displayedCollection.sort()))
     },
-    currentGameCollectionNameSentence () {
-      if (this.currentGameCollection.names.length === 0) { return '' }
-      if (this.currentGameCollection.names.length === 1) { return this.currentGameCollection.names[0] }
-      return `${_(this.currentGameCollection.names).slice(0, this.currentGameCollection.names.length - 1).join(', ')} and ${_.last(this.currentGameCollection.names)}`
-    },
     readyForVenn () {
       // Venn seems to be unhappy if we repeatedly rebuild it while stuff is loading in,
       // so let's wait until all our ducks are in a row.
@@ -117,6 +112,11 @@ export default {
         }
         return data
       })
+    },
+    gameCollectionNameSentence () {
+      if (this.currentGameCollection.names.length === 0) { return '' }
+      if (this.currentGameCollection.names.length === 1) { return this.currentGameCollection.names[0] }
+      return `${_(this.currentGameCollection.names).slice(0, this.currentGameCollection.names.length - 1).join(', ')} and ${_.last(this.currentGameCollection.names)}`
     }
   },
   methods: {
@@ -157,14 +157,12 @@ export default {
     },
     selectDisplayedCollection (set) {
       this.displayedCollection = set
-    },
-    getIconUrl (game) {
-      return steam.getIconUrl(game)
     }
   },
   components: {
     SteamProfileList,
-    Venn
+    Venn,
+    GameCollection
   },
   watch: {
     steamProfiles (newProfiles) {

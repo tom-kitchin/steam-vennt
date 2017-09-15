@@ -12,6 +12,9 @@ module.exports = {
     ],
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+    ],
+    script: [
+      { src: 'https://use.fontawesome.com/1e8d643972.js' }
     ]
   },
   /*
@@ -38,8 +41,7 @@ module.exports = {
     vendor: [
       'axios',
       'lodash',
-      '~/assets/js/steam/client',
-      '~/assets/js/steam/server'
+      '~/assets/js/steam/client'
     ],
     /*
     ** Run ESLINT on save

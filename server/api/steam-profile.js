@@ -21,7 +21,7 @@ router.get(
     let steamIds = _.split(req.params.steamids, ',')
     steam.getSteamProfiles(steamIds).then((data) => {
       if (data.error) {
-        return res.status(500).json()
+        return res.status(500).json(data)
       }
       return res.json(data)
     })
@@ -35,7 +35,7 @@ router.get(
   function (req, res, next) {
     steam.getSteamOwnedGames(req.params.steamid).then((data) => {
       if (data.error) {
-        return res.status(500).json()
+        return res.status(500).json(data)
       }
       return res.json(data)
     })
@@ -49,7 +49,7 @@ router.get(
   function (req, res, next) {
     steam.getSteamFriendList(req.params.steamid).then((data) => {
       if (data.error) {
-        return res.status(500).json()
+        return res.status(500).json(data)
       }
       return res.json(data)
     })

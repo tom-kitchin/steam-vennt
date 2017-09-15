@@ -16,6 +16,7 @@
     "apicache": "^1.0.0",
     "axios": "^0.16.2",
     "backpack-core": "^0.4.2",
+    "better-sqlite3": "^4.0.2",
     "bootstrap": "4.0.0-beta",
     "bottleneck": "^1.16.0",
     "cross-env": "^5.0.5",

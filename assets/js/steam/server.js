@@ -1,9 +1,10 @@
 import axios from 'axios'
 import Bottleneck from 'bottleneck'
 import _ from 'lodash'
+import db from '~/server/db'
 
-// Rate limiting tool - 1 concurrent, 250ms gap, queue length limit 100, discard oldest when going over limit, reject promises when dropped.
-let requestQueue = new Bottleneck(1, 250, 100, Bottleneck.strategy.LEAK, true)
+// Rate limit Steam API requests - 1 concurrent, 250ms gap, queue length limit 100, discard oldest when going over limit, reject promises when dropped.
+let steamRequestQueue = new Bottleneck(1, 250, 100, Bottleneck.strategy.LEAK, true)
 
 function isSteamKeySet () {
   return !!process.env.STEAM_API_KEY
@@ -13,8 +14,17 @@ function isSteamIdFormat (steamId) {
   return (/^\d+$/.test(steamId))
 }
 
+function getIconUrl (game) {
+  if (!game.img_icon_url) { return '' }
+  return `https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
+}
+
+function getGameTags (games) {
+  return db.getTagsForGames(_.map(games, (game) => game.appid))
+}
+
 function resolveVanityUrl (steamVanityId) {
-  return requestQueue.schedule(axios.get, 'https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/', {
+  return steamRequestQueue.schedule(axios.get, 'https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/', {
     params: { key: process.env.STEAM_API_KEY, vanityurl: steamVanityId }
   }).then(({ data }) => {
     if (data.response.success !== 1) {
@@ -34,7 +44,7 @@ function resolveVanityUrl (steamVanityId) {
 function getProfiles (profiles) {
   let steamIds = _.map(profiles, (profile) => profile.steamId)
   // First just fire off a request and see what we get.
-  return requestQueue.schedule(axios.get, 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
+  return steamRequestQueue.schedule(axios.get, 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
     params: { key: process.env.STEAM_API_KEY, steamids: _.join(steamIds, ',') }
   }).then(({ data }) => {
     if (_.isEmpty(data.response)) {
@@ -67,7 +77,7 @@ function getOwnedGames (steamId) {
     // If it's not all numbers, it's probably not a steam ID!
     return Promise.reject(new Error(`${steamId} doesn't look like a valid Steam ID`))
   }
-  return requestQueue.schedule(axios.get, 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/', {
+  return steamRequestQueue.schedule(axios.get, 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/', {
     params: { key: process.env.STEAM_API_KEY, steamid: steamId, include_appinfo: '1' }
   }).then(({ data }) => {
     if (_.isEmpty(data.response)) {
@@ -83,7 +93,7 @@ function getFriendList (steamId) {
     // If it's not all numbers, it's probably not a steam ID!
     return Promise.reject(new Error(`${steamId} doesn't look like a valid Steam ID`))
   }
-  return requestQueue.schedule(axios.get, 'https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
+  return steamRequestQueue.schedule(axios.get, 'https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
     params: { key: process.env.STEAM_API_KEY, steamid: steamId, relationship: 'friend' }
   }).then(({ data }) => {
     if (_.isEmpty(data)) {
@@ -141,12 +151,20 @@ export default {
       return getOwnedGames(steamId).catch(() => {
         // Maybe it's a vanity ID?
         return resolveVanityUrl(steamId).then((response) => {
-          return getOwnedGames(response.steamid).then((response) => {
-            return response
-          })
+          return getOwnedGames(response.steamid)
         }).catch((e) => {
           return { error: e.message }
         })
+      }).then((response) => {
+        let tags = getGameTags(response.games)
+        response.games = _.map(response.games, (game) => {
+          return {
+            ...game,
+            tags: tags[game.appid],
+            iconUrl: getIconUrl(game)
+          }
+        })
+        return response
       })
     } else {
       return Promise.resolve({
@@ -164,9 +182,5 @@ export default {
         error: 'Steam API key not set on server'
       })
     }
-  },
-  getIconUrl (game) {
-    if (!game.img_icon_url) { return '' }
-    return `https://steamcdn-a.akamaihd.net/steamcommunity/public/images/apps/${game.appid}/${game.img_icon_url}.jpg`
   }
 }
