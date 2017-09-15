@@ -1,6 +1,12 @@
 <template>
   <div>
     <div class="game-collection-controls">
+      <div class="form-row filter">
+        <div class="form-group col-auto my-1">
+          <label for="gameFilter" class="text-muted m-1">Filter by name: </label>
+          <input id="gameFilter" v-model="filterText" />
+        </div>
+      </div>
       <div class="tag-sort">
         <span class="text-muted m-1">Sort by tag:</span>
         <a
@@ -16,10 +22,9 @@
         </a>
       </div>
     </div>
-    <hr>
     <ul class="list-group">
       <game
-        v-for="game in sortedGameCollection"
+        v-for="game in filteredSortedGameCollection"
         :key="game.appId"
         :game="game"
         :tagIcons="tagIcons"
@@ -52,7 +57,8 @@ export default {
         'Multiplayer': 'sitemap',
         'Co-op': 'heart'
       },
-      sort: this.defaultSort
+      sort: this.defaultSort,
+      filterText: ''
     }
   },
   computed: {
@@ -64,6 +70,13 @@ export default {
         ]
       }
       return this.gameCollection.games
+    },
+    filteredSortedGameCollection () {
+      if (!this.filterText) { return this.sortedGameCollection }
+      let filterText = _.toLower(this.filterText)
+      return _.filter(this.sortedGameCollection, (game) => {
+        return _.includes(_.toLower(game.name), filterText)
+      })
     }
   },
   methods: {
