@@ -156,7 +156,7 @@ export default {
           return { error: e.message }
         })
       }).then((response) => {
-        let tags = getGameTags(_.map(response.games, (game) => game.appid))
+        let tags = getGameTags(response.games)
         response.games = _.map(response.games, (game) => {
           return {
             ...game,

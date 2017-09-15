@@ -1,6 +1,10 @@
 <template>
   <section class="container">
-    <h3>Profiles</h3>
+    <h3 v-if="currentGameCollection" class="game-count-header">
+      <span v-if="currentGameCollection.steamIds.length > 1">{{ gameCollectionNameSentence }} have {{ currentGameCollection.gameCount || 'no' }} games in common</span>
+      <span v-else>{{ gameCollectionNameSentence }} owns {{ currentGameCollection.gameCount }} games</span>
+    </h3>
+    <hr>
     <steam-profile-list
       v-model="steamProfiles"
       :canToggle="true"
@@ -104,6 +108,11 @@ export default {
         }
         return data
       })
+    },
+    gameCollectionNameSentence () {
+      if (this.currentGameCollection.names.length === 0) { return '' }
+      if (this.currentGameCollection.names.length === 1) { return this.currentGameCollection.names[0] }
+      return `${_(this.currentGameCollection.names).slice(0, this.currentGameCollection.names.length - 1).join(', ')} and ${_.last(this.currentGameCollection.names)}`
     }
   },
   methods: {

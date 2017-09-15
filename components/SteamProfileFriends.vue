@@ -97,6 +97,9 @@ export default {
   },
   watch: {
     steamId (newSteamId, oldSteamId) {
+      if (!newSteamId) {
+        this.friendList = []
+      }
       if (newSteamId !== oldSteamId) {
         this.loadFriendList()
       }
@@ -106,3 +109,8 @@ export default {
 </script>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style>
+.multiselect__input {
+  font-size: 16px;
+}
+</style>
