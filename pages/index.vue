@@ -35,7 +35,7 @@
               aria-label="Continue"
               @click.prevent="setMainProfile"
               href="#"
-            ><i class="fa fa-check" aria-hidden="true"></i></a>
+            ><i class="fa fa-check" aria-hidden="true"></i> Continue</a>
           </div>
         </div>
         <div class="alert alert-secondary">
