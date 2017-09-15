@@ -39,9 +39,19 @@
               ><i class="fa fa-check" aria-hidden="true"></i> Continue</a>
             </div>
           </div>
+          <div>
+            <form action="/api/openid/steam" method="post" class="form-row">
+              <div class="form-group col-auto">
+                <label for="moreSteamIds">Or sign in through Steam:</label>
+                <button id="moreSteamIds" type="submit" class="btn btn-outline-light" value="Sign In">
+                  <img :src="require('~/assets/images/signinthroughsteam.png')" alt="Sign in with steam" />
+                </button>
+              </div>
+            </form>
+          </div>
           <div class="alert alert-secondary">
             <p>
-              This ID should be either the unique numeric ID Steam assigns to your
+              Your Steam ID should be either the unique numeric ID Steam assigns to your
               account or the custom URL you can set in your Steam profile settings,
               <em>not</em> your profile or account name.
             </p>
