@@ -181,6 +181,26 @@ export default {
           ...this.mainProfile,
           status: 'ready'
         }
+      }).catch((e) => {
+        let data
+        if (e.response) {
+          data = e.response.data
+        }
+
+        let profileError
+        if (_.isEmpty(data)) { profileError = `Failed to load data for profile ${this.mainProfile.providedId}` }
+        if (data.error) { profileError = data.error }
+
+        if (profileError) {
+          this.mainProfile = {
+            ...this.mainProfile,
+            status: 'error',
+            error: profileError
+          }
+          return
+        }
+
+        throw new Error(e)
       })
     },
     clearMainProfile () {
