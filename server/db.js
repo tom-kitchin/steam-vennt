@@ -74,7 +74,8 @@ function loadGamesFromSteamSpyJson (data) {
     _.each(appIds, ({ appid }) => {
       if (data[appid]) {
         let game = data[appid]
-        updateStatement.run({ appId: game.appid, name: game.name, tags: _(game.tags).keys().join(',') })
+        let tags = filterTagsByVotes(game.tags)
+        updateStatement.run({ appId: game.appid, name: game.name, tags: _(tags).keys().join(',') })
         delete data[appid]
       }
     })
@@ -82,9 +83,16 @@ function loadGamesFromSteamSpyJson (data) {
     // Create new values.
     let setStatement = db.prepare('INSERT INTO games (appid, name, tags) VALUES (@appId, @name, @tags)')
     _.each(data, function (game) {
-      setStatement.run({ appId: game.appid, name: game.name, tags: _(game.tags).keys().join(',') })
+      let tags = filterTagsByVotes(game.tags)
+      setStatement.run({ appId: game.appid, name: game.name, tags: _(tags).keys().join(',') })
     })
   })
+}
+
+function filterTagsByVotes (tags) {
+  let highestVotes = _.max(_.values(tags))
+  let voteCutoff = highestVotes * 0.25 // Gotta have at least 25% of the votes of the most voted one.
+  return _.pickBy(tags, (votes) => votes > voteCutoff)
 }
 
 module.exports = {
