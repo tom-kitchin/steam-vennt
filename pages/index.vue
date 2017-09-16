@@ -100,12 +100,10 @@
                   @keyup.enter="addFriendId"
                   placeholder="Steam ID"
                 />
-              </div>
-              <div class="form-group col-auto">
                 <label for="addSteamId" class="sr-only">Add</label>
                 <a
                   id="addSteamId"
-                  class="btn btn-primary btn-sm"
+                  class="btn btn-primary btn-sm mx-2"
                   :class="{ disabled: !extraSteamId }"
                   role="button"
                   @click.prevent="addFriendId"
