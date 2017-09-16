@@ -30,6 +30,11 @@ router.post('/openid/steam', passport.authenticate('openid'))
 
 router.get(
   '/openid/steam/return',
+  function(req, res, next) {
+    // Middleware to fix bug in openid path check.
+    req.url = req.originalUrl
+    next()
+  },
   passport.authenticate('openid'),
   function (req, res) {
     if (req.user) {
