@@ -26,6 +26,8 @@ let steamStrategy = new Strategy({
 
 passport.use(steamStrategy)
 
+app.use(passport.initialize())
+
 router.post('/openid/steam', passport.authenticate('openid'))
 
 router.get(
