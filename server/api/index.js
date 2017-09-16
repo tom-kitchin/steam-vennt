@@ -4,7 +4,7 @@ import steamProfile from './steam-profile'
 
 const router = Router()
 
-// Add steam profile routes
+// Add API routes
 router.use(steamProfile)
 
 export default router

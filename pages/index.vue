@@ -22,16 +22,20 @@
           <p class="instruction">
             First, enter your steam ID:
           </p>
-          <div class="form-row">
+          <div class="form">
             <div class="form-group col-auto">
               <label for="steamId" class="sr-only">Steam ID</label>
-              <input id="steamId" v-model="newSteamId" @keyup.enter="setMainProfile" placeholder="Enter your Steam ID" />
-            </div>
-            <div class="form-group col-auto">
+              <input
+                id="steamId"
+                class="profile-id-input"
+                v-model="newSteamId"
+                @keyup.enter="setMainProfile"
+                placeholder="Enter your Steam ID"
+              />
               <label for="addSteamId" class="sr-only">Continue</label>
               <a
                 id="addSteamId"
-                class="btn btn-primary btn-sm"
+                class="btn btn-primary btn-sm mx-2"
                 :class="{ disabled: !newSteamId }"
                 role="button"
                 @click.prevent="setMainProfile"
@@ -39,9 +43,19 @@
               ><i class="fa fa-check" aria-hidden="true"></i> Continue</a>
             </div>
           </div>
+          <div>
+            <form action="/auth/openid/steam" method="post" class="form">
+              <div class="form-group col-auto steam-signin-form">
+                <label for="moreSteamIds" class="instruction">Or sign in through Steam:</label>
+                <button id="moreSteamIds" type="submit" class="sign-in-on-steam-button" value="Sign In">
+                  <img :src="require('~/assets/images/signinthroughsteam.png')" alt="Sign in with steam" />
+                </button>
+              </div>
+            </form>
+          </div>
           <div class="alert alert-secondary">
             <p>
-              This ID should be either the unique numeric ID Steam assigns to your
+              Your Steam ID should be either the unique numeric ID Steam assigns to your
               account or the custom URL you can set in your Steam profile settings,
               <em>not</em> your profile or account name.
             </p>
@@ -50,7 +64,11 @@
               in the address bar for the following:
             </p>
             <figure class="figure">
-              <img :src="require('~/assets/images/steam-id-example.png')" class="figure-img img-fluid" alt="Picture of the Steam ID section of a URL" />
+              <img
+                :src="require('~/assets/images/steam-id-example.png')"
+                class="figure-img img-fluid"
+                alt="Picture of the Steam ID section of a URL"
+              />
               <figcaption class="figure-caption text-right">Here my Steam ID is 'twodaemon'</figcaption>
             </figure>
             <p>
@@ -75,7 +93,13 @@
             <div class="form-row mt-3">
               <div class="form-group col-auto">
                 <label for="moreSteamIds" class="mr-2">Or enter more Steam IDs by hand:</label>
-                <input id="moreSteamIds" v-model="extraSteamId" @keyup.enter="addFriendId" placeholder="Steam ID" />
+                <input
+                  id="moreSteamIds"
+                  class="profile-id-input"
+                  v-model="extraSteamId"
+                  @keyup.enter="addFriendId"
+                  placeholder="Steam ID"
+                />
               </div>
               <div class="form-group col-auto">
                 <label for="addSteamId" class="sr-only">Add</label>
@@ -279,5 +303,20 @@ export default {
 }
 .v-enter, .v-leave-to {
   opacity: 0
+}
+
+.profile-id-input {
+  padding: 3px;
+}
+
+.steam-signin-form {
+  padding-left: 0;
+}
+
+.sign-in-on-steam-button {
+  border: 0;
+  background-color: inherit;
+  cursor: pointer;
+  margin-left: 5px;
 }
 </style>
