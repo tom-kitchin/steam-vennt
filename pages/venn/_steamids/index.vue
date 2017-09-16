@@ -171,11 +171,6 @@ export default {
       this.displayedCollection = set
     }
   },
-  components: {
-    SteamProfileList,
-    Venn,
-    GameCollection
-  },
   watch: {
     steamProfiles (newProfiles) {
       // We're looking for when a profile has just become ready.
@@ -191,6 +186,11 @@ export default {
         this.loadProfileGames(steamId)
       })
     }
+  },
+  components: {
+    SteamProfileList,
+    Venn,
+    GameCollection
   }
 }
 </script>

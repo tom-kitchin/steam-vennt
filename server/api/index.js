@@ -1,7 +1,7 @@
 import { Router } from 'express'
 
 import steamProfile from './steam-profile'
-import openId from './open-id'
+import openId from './openid'
 
 const router = Router()
 

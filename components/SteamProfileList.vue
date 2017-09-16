@@ -139,7 +139,7 @@ export default {
       }
     }
   },
-  created () {
+  mounted () {
     if (this.value.length > 0) {
       this.loadProfiles()
     }
