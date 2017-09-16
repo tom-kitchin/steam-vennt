@@ -42,7 +42,7 @@ passport.use(steamStrategy)
 app.use('/api', api)
 
 // Set up steam auth routes
-app.post('/auth/openid/steam', passport.authenticate('openid'))
+app.post('/auth/openid/steam', passport.authenticate('openid', { session: false }))
 app.get(
   '/auth/openid/steam/return',
   function(req, res, next) {
@@ -50,7 +50,7 @@ app.get(
     req.url = req.originalUrl
     next()
   },
-  passport.authenticate('openid'),
+  passport.authenticate('openid', { session: false }),
   function (req, res) {
     if (req.user) {
       res.redirect(`/${req.user.steamId}`)
