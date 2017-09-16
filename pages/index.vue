@@ -6,7 +6,7 @@
       </p>
       <p>
         Sudden extra member of the group for game night and you need to find something everyone can play?
-        Enter your account ID below to quickly compare you and your friends' libraries.
+        Enter your account ID below to quickly compare all your libraries.
       </p>
     </div>
     <div>
