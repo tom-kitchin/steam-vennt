@@ -12,6 +12,59 @@ app.set('port', port)
 // Import API Routes
 app.use('/api', api)
 
+/*
+** Set up openid for steam.
+*/
+import { Strategy } from 'passport-openid'
+import passport from 'passport'
+
+let serverUrl = process.env.BASE_URL || 'localhost:3000'
+
+let steamStrategy = new Strategy({
+  providerURL: 'http://steamcommunity.com/openid',
+  returnURL: `${serverUrl}/auth/openid/steam/return`,
+  realm: serverUrl,
+  stateless: true
+}, function (identifier, done) {
+  try {
+    let steamId = identifier.match(/^http:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/)[1]
+    if (steamId) {
+      return done(null, { steamId })
+    } else {
+      return done(null, false)
+    }
+  } catch (e) {
+    return done(e, null)
+  }
+})
+
+passport.use(steamStrategy)
+
+app.use(passport.initialize())
+
+app.post('auth/openid/steam', passport.authenticate('openid'))
+
+app.get(
+  'auth/openid/steam/return',
+  function(req, res, next) {
+    // Middleware to fix bug in openid path check.
+    req.url = req.originalUrl
+    next()
+  },
+  passport.authenticate('openid'),
+  function (req, res) {
+    if (req.user) {
+      res.redirect(`/${req.user.steamId}`)
+    } else {
+      response.redirect(`/`)
+    }
+  }
+)
+
+/*
+** End of steam openid
+*/
+
 // Import and Set Nuxt.js options
 let config = require('../nuxt.config.js')
 config.dev = !(process.env.NODE_ENV === 'production')
