@@ -44,7 +44,7 @@
             </div>
           </div>
           <div>
-            <form action="/api/openid/steam" method="post" class="form">
+            <form action="/auth/openid/steam" method="post" class="form">
               <div class="form-group col-auto steam-signin-form">
                 <label for="moreSteamIds" class="instruction">Or sign in through Steam:</label>
                 <button id="moreSteamIds" type="submit" class="sign-in-on-steam-button" value="Sign In">
