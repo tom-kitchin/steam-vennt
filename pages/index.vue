@@ -90,7 +90,7 @@
             @addFriend="addFriend"
           />
           <div>
-            <div class="form-row mt-3">
+            <div class="form mt-3">
               <div class="form-group col-auto">
                 <label for="moreSteamIds" class="mr-2">Or enter more Steam IDs by hand:</label>
                 <input
