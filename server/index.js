@@ -9,9 +9,6 @@ const port = process.env.PORT || 3000
 
 app.set('port', port)
 
-// Import API Routes
-app.use('/api', api)
-
 /*
 ** Set up openid for steam.
 */
@@ -38,14 +35,16 @@ let steamStrategy = new Strategy({
   }
 })
 
+app.use(passport.initialize())
 passport.use(steamStrategy)
 
-app.use(passport.initialize())
+// Import API Routes
+app.use('/api', api)
 
-app.post('auth/openid/steam', passport.authenticate('openid'))
-
+// Set up steam auth routes
+app.post('/auth/openid/steam', passport.authenticate('openid'))
 app.get(
-  'auth/openid/steam/return',
+  '/auth/openid/steam/return',
   function(req, res, next) {
     // Middleware to fix bug in openid path check.
     req.url = req.originalUrl
@@ -60,10 +59,6 @@ app.get(
     }
   }
 )
-
-/*
-** End of steam openid
-*/
 
 // Import and Set Nuxt.js options
 let config = require('../nuxt.config.js')
