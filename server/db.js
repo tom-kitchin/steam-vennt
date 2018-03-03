@@ -95,6 +95,32 @@ function filterTagsByVotes (tags) {
   return _.pickBy(tags, (votes) => votes > voteCutoff)
 }
 
+function loadGamesForTagFromSteamSpyJson (data, tag) {
+  openTransaction((db) => {
+    let appIds = db.prepare('SELECT appid, tags FROM games').all()
+
+    // Update any existing values.
+    let updateStatement = db.prepare('UPDATE games SET name = @name, tags = @tags where appid = @appId')
+    _.each(appIds, ({ appid, tags }) => {
+      if (data[appid]) {
+        let currentTags = tags.split(',')
+        if (!_.includes(currentTags, tag)) {
+          currentTags.push(tag)
+          let game = data[appid]
+          updateStatement.run({ appId: game.appid, name: game.name, tags: _.join(currentTags, ',') })
+        }
+        delete data[appid]
+      }
+    })
+
+    // Create new values.
+    let setStatement = db.prepare('INSERT INTO games (appid, name, tags) VALUES (@appId, @name, @tags)')
+    _.each(data, function (game) {
+      setStatement.run({ appId: game.appid, name: game.name, tags: tag })
+    })
+  })
+}
+
 module.exports = {
   open,
   initialize,
