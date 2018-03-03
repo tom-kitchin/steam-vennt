@@ -127,5 +127,6 @@ module.exports = {
   insertOrUpdateGame,
   getTagsForGame,
   getTagsForGames,
-  loadGamesFromSteamSpyJson
+  loadGamesFromSteamSpyJson,
+  loadGamesForTagFromSteamSpyJson
 }
