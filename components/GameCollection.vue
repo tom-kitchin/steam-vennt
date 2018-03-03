@@ -52,7 +52,6 @@ export default {
   data () {
     return {
       tagIcons: {
-        'Massively Multiplayer': 'globe',
         'Local Multiplayer': 'gamepad',
         'Multiplayer': 'sitemap',
         'Co-op': 'heart'

@@ -5,7 +5,6 @@ let db = require('../server/db')
 let _ = require('lodash')
 
 let tagsToGet = [
-  'Massively Multiplayer',
   'Local Multiplayer',
   'Co-op',
   'Multiplayer'
