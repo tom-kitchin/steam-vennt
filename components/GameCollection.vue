@@ -20,6 +20,7 @@
           <i :class="['fa', `fa-${icon}`]" aria-hidden="true"></i>
           <span class="tag-text">{{ tag }}</span>
         </a>
+        <span class="text-muted m-1">(Tags are pulled from SteamSpy and may be unreliable)</span>
       </div>
     </div>
     <ul class="list-group">
