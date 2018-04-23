@@ -24,12 +24,14 @@ let steamStrategy = new Strategy({
   stateless: true
 }, function (identifier, done) {
   try {
-    let steamId = identifier.match(/^http:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/)[1]
-    if (steamId) {
-      return done(null, { steamId })
-    } else {
-      return done(null, false)
+    let match = identifier.match(/^http:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/)
+    if (match) {
+      let steamId = match[0]
+      if (steamId) {
+        return done(null, { steamId })
+      }
     }
+    return done(null, false)
   } catch (e) {
     return done(e, null)
   }
