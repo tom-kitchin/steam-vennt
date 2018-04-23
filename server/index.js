@@ -26,7 +26,7 @@ let steamStrategy = new Strategy({
   try {
     let match = identifier.match(/^http:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/)
     if (match) {
-      let steamId = match[0]
+      let steamId = match[1]
       if (steamId) {
         return done(null, { steamId })
       }
