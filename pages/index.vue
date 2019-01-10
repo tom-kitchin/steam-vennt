@@ -1,9 +1,6 @@
 <template>
   <section class="container">
     <div class="intro">
-      <p class="bg-warning">
-        Due to a recent (as of 20th April 2018) privacy change in the Steam API, Vennt can no longer retrieve owned game lists for users and so no longer really works at all. I don't have a way to fix it. Sorry about that :(
-      </p>
       <p class="lead">
         Compare the games owned by any number of Steam accounts to find out what games you all have in common.
       </p>
