@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3')
 const _ = require('lodash')
 
-const DBPATH = 'vennt.sqlite3'
+const DBPATH = 'sqlite/vennt.sqlite3'
 
 // Higher order function - returns a function that always runs in a transaction
 function openTransaction (call) {

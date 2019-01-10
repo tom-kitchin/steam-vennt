@@ -27,3 +27,14 @@ $ npm run dev
 $ npm run build
 $ npm start
 ```
+
+## Docker image
+To easily deploy steam-vennt to your server, you can either use the prebuilt image or build your own.
+
+### Prebuilt
+`docker run -p 3000:3000 -e STEAM_API_KEY=YourSteamApiKey -v vennt-sqlite:/app/sqlite gerwim/steam-vennt`
+
+### Build it yourself
+1) Clone this git repository  
+2) Build the image: `docker build -t steam-vennt .`  
+3) Run it: `docker run -p 3000:3000 -e STEAM_API_KEY=YourSteamApiKey -v vennt-sqlite:/app/sqlite steam-vennt`

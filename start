@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Check if the local sqlite DB exists, if not init it
+if [ ! -f sqlite/vennt.sqlite3 ]; then
+    echo "Initializing database..."
+    node -e "require('./server/db').initialize()"
+fi
+
+# Get data from the SteamSpy API
+echo "Updating database with SteamSpy's data..."
+node bin/buildTagListFromSteamSpy.js
+
+# Start the Vennt app
+echo "Starting steam-vennt..."
+npm start
