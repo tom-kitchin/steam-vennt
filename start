@@ -1,5 +1,11 @@
 #!/bin/sh
 
+### WARNING: this file should only be used for the Docker container
+### since it assumes paths and environment settings
+### only run this manually if you know what this script does
+
+updateTagListCommand="node /app/bin/buildTagListFromSteamSpy.js"
+
 # Check if the local sqlite DB exists, if not init it
 if [ ! -f sqlite/vennt.sqlite3 ]; then
     echo "Initializing database..."
@@ -8,7 +14,17 @@ fi
 
 # Get data from the SteamSpy API
 echo "Updating database with SteamSpy's data..."
-node bin/buildTagListFromSteamSpy.js
+$updateTagListCommand
+
+# Start crond
+echo "Starting crond..."
+crond
+
+# Setting up the daily cron if it's not already
+if ! grep -Fq "$updateTagListCommand" /etc/crontabs/root; then
+    echo "Setting up daily cron..."
+    echo "0 2 * * * $updateTagListCommand" >> /etc/crontabs/root
+fi
 
 # Start the Vennt app
 echo "Starting steam-vennt..."
