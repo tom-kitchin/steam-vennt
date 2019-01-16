@@ -82,7 +82,7 @@ function getOwnedGames (steamId) {
   }).then(({ data }) => {
     if (_.isEmpty(data.response)) {
       // Empty response is probably a failed lookup?
-      return Promise.reject(new Error(`Failed to load game list for Steam ID '${steamId}'`))
+      throw new Error(`Failed to load game list for Steam ID '${steamId}'`)
     }
     return data.response
   })
@@ -148,14 +148,7 @@ export default {
   },
   getSteamOwnedGames (steamId) {
     if (isSteamKeySet()) {
-      return getOwnedGames(steamId).catch(() => {
-        // Maybe it's a vanity ID?
-        return resolveVanityUrl(steamId).then((response) => {
-          return getOwnedGames(response.steamid)
-        }).catch((e) => {
-          return { error: e.message }
-        })
-      }).then((response) => {
+      return getOwnedGames(steamId).then((response) => {
         let tags = getGameTags(response.games)
         response.games = _.map(response.games, (game) => {
           return {
@@ -165,6 +158,8 @@ export default {
           }
         })
         return response
+      }).catch((e) => {
+        return { error: e.message }
       })
     } else {
       return Promise.resolve({

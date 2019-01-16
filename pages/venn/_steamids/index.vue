@@ -141,30 +141,38 @@ export default {
         }
       }
       return steam.getSteamOwnedGames(steamId).then(({ data }) => {
-        if (data.error) {
-          this.gameCollections = {
-            ...this.gameCollections,
-            [steamId]: {
-              steamId,
-              status: 'error',
-              error: data.error
-            }
+        this.gameCollections = {
+          ...this.gameCollections,
+          [steamId]: {
+            steamId,
+            gameCount: data.game_count,
+            games: data.games,
+            status: 'ready'
           }
-        } else {
-          this.gameCollections = {
-            ...this.gameCollections,
-            [steamId]: {
-              steamId,
-              gameCount: data.game_count,
-              games: data.games,
-              status: 'ready'
-            }
-          }
-          this.displayedCollection = [
-            ...this.displayedCollection,
-            steamId
-          ]
         }
+        this.displayedCollection = [
+          ...this.displayedCollection,
+          steamId
+        ]
+      }).catch(({ response }) => {
+        this.gameCollections = {
+          ...this.gameCollections,
+          [steamId]: {
+            steamId,
+            status: 'error',
+            error: response.data.error
+          }
+        }
+        this.steamProfiles = _.map(this.steamProfiles, (profile) => {
+          if (profile.steamId === steamId) {
+            return {
+              ...profile,
+              status: 'error',
+              error: response.data.error
+            }
+          }
+          return profile
+        })
       })
     },
     selectDisplayedCollection (set) {
